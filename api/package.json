@@ -6,8 +6,9 @@
     "main": "dist/server.js",
     "scripts": {
         "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-        "build": "tsc --project tsconfig.json",
+        "build": "tsc --skipLibCheck",
         "start": "node dist/server.js",
+        "postinstall": "prisma generate",
         "db:generate": "prisma generate",
         "db:migrate": "prisma migrate dev",
         "db:seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' ../prisma/seed.ts",
