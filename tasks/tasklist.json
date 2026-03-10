@@ -1,0 +1,154 @@
+{
+  "project": "AwaasDirect",
+  "version": "1.0.0-MVP",
+  "description": "AI-powered, broker-free real estate platform for India",
+  "tasks": [
+    {
+      "id": 1,
+      "agent": "architect",
+      "task": "Design full system architecture: monorepo structure, tech stack selection (Next.js frontend, Node.js/Express or NestJS API, PostgreSQL, Redis, S3-compatible storage), third-party integrations (Aadhaar DigiLocker API, RERA validation, AI virtual tour API, GenAI floor plan), and deployment topology (AWS Mumbai region).",
+      "depends_on": [],
+      "output": "docs/architecture.md"
+    },
+    {
+      "id": 2,
+      "agent": "database",
+      "task": "Design and write the Prisma schema for all entities: User (with Aadhaar verification status), Property (with type, transaction type, RERA fields, status), PropertyPhoto, VirtualTour, FloorPlanRequest, ChatThread, ChatMessage, SavedProperty, Report.",
+      "depends_on": [1],
+      "output": "prisma/schema.prisma"
+    },
+    {
+      "id": 3,
+      "agent": "backend",
+      "task": "Implement authentication API endpoints: POST /auth/request-otp (phone), POST /auth/verify-otp (phone OTP login/register), POST /auth/aadhaar/initiate (start DigiLocker Aadhaar KYC), POST /auth/aadhaar/callback (handle KYC result and update user verified status), GET /auth/me.",
+      "depends_on": [2],
+      "output": "src/api/auth/"
+    },
+    {
+      "id": 4,
+      "agent": "backend",
+      "task": "Implement property listing CRUD API endpoints: POST /properties (create listing with RERA format validation), GET /properties (search with filters: city, type, bhk, price range, verified, listing type), GET /properties/:id (detail), PUT /properties/:id, PATCH /properties/:id/status (sold/rented/active), DELETE /properties/:id. All write endpoints require Aadhaar-verified user.",
+      "depends_on": [2],
+      "output": "src/api/properties/"
+    },
+    {
+      "id": 5,
+      "agent": "backend",
+      "task": "Implement photo upload API: POST /properties/:id/photos (accept multipart/form-data, validate max 20 files, compress with sharp, upload to S3, store URLs in DB), DELETE /properties/:id/photos/:photoId.",
+      "depends_on": [4],
+      "output": "src/api/properties/photos/"
+    },
+    {
+      "id": 6,
+      "agent": "ai-engineer",
+      "task": "Implement AI Virtual Tour service: POST /properties/:id/virtual-tour/generate — accept property photos from S3, send to third-party AI tour API (Matterport/Kuula or open-source NeRF pipeline), poll for completion, store tour embed URL in VirtualTour table, update status (PENDING → PROCESSING → READY → FAILED). GET /properties/:id/virtual-tour — return embed URL and status.",
+      "depends_on": [5],
+      "output": "src/services/virtual-tour/"
+    },
+    {
+      "id": 7,
+      "agent": "ai-engineer",
+      "task": "Implement AI Floor Plan Generator service: POST /properties/:id/floor-plan — accept plot dimensions (length, width in feet), floors, room preferences; construct structured prompt and call GPT-4o (or architecture-specific model) to generate a 2D floor plan image; store result PNG/SVG in S3; save FloorPlanRequest record with download URL. Limit 3 generations per (buyer, property) per day.",
+      "depends_on": [2],
+      "output": "src/services/floor-plan/"
+    },
+    {
+      "id": 8,
+      "agent": "backend",
+      "task": "Implement direct chat API: POST /chat/threads (initiate thread between buyer and owner for a property — requires verified buyer), GET /chat/threads (list all threads for authenticated user), GET /chat/threads/:threadId/messages (paginated message history), POST /chat/threads/:threadId/messages (send message), PATCH /chat/threads/:threadId/share-phone (owner opts to share phone number in thread), POST /chat/threads/:threadId/report.",
+      "depends_on": [2],
+      "output": "src/api/chat/"
+    },
+    {
+      "id": 9,
+      "agent": "backend",
+      "task": "Implement real-time chat using WebSockets (Socket.io or native WS): authenticated socket connection, join/leave thread rooms, broadcast new messages to thread participants, emit unread-count updates. Persist all messages to DB via the chat API.",
+      "depends_on": [8],
+      "output": "src/services/realtime/"
+    },
+    {
+      "id": 10,
+      "agent": "backend",
+      "task": "Implement saved properties (shortlist) API: POST /saved-properties (save a listing), GET /saved-properties (list saved properties for authenticated buyer), DELETE /saved-properties/:propertyId. Implement reporting API: POST /reports (report a listing or user with reason).",
+      "depends_on": [4],
+      "output": "src/api/saved/ src/api/reports/"
+    },
+    {
+      "id": 11,
+      "agent": "backend",
+      "task": "Implement notifications service: send email (via SendGrid/AWS SES) when a new chat message arrives for an owner or buyer. Create email templates for: new message received, Aadhaar verification success, listing published, listing deactivated pending review (fraud flag).",
+      "depends_on": [8],
+      "output": "src/services/notifications/"
+    },
+    {
+      "id": 12,
+      "agent": "frontend",
+      "task": "Set up Next.js 14 (App Router) project with TypeScript, Tailwind CSS, shadcn/ui component library, React Query for data fetching, Zustand for global state, and Axios HTTP client. Configure environment variables, API base URL, and auth token storage (HttpOnly cookie preferred).",
+      "depends_on": [1],
+      "output": "web/"
+    },
+    {
+      "id": 13,
+      "agent": "frontend",
+      "task": "Build authentication pages and flows: /login (phone + OTP input), /verify-aadhaar (Aadhaar OTP step), /profile (user profile with verification status badge). Implement auth guard HOC to protect routes that require verified status.",
+      "depends_on": [3, 12],
+      "output": "web/app/(auth)/"
+    },
+    {
+      "id": 14,
+      "agent": "frontend",
+      "task": "Build homepage with search bar (city, type: buy/rent) and hero section. Build /search page with full filter panel (BHK, price slider, property type, verified toggle, furnishing), results grid with property cards (photo, price, BHK, locality, badges), and pagination.",
+      "depends_on": [4, 12],
+      "output": "web/app/(public)/page.tsx web/app/(search)/"
+    },
+    {
+      "id": 15,
+      "agent": "frontend",
+      "task": "Build property detail page /properties/:id: photo gallery (lightbox), all specs, RERA badge, owner verified badge, AI virtual tour embed (iframe), AI floor plan section (for plots: input form + generated plan display + download button), 'Chat with Owner' CTA button, Save button.",
+      "depends_on": [4, 6, 7, 12],
+      "output": "web/app/properties/[id]/"
+    },
+    {
+      "id": 16,
+      "agent": "frontend",
+      "task": "Build owner dashboard /dashboard: listing management table (status, views, inquiry count, edit/deactivate/delete actions), 'Create Listing' button, virtual tour status indicator per listing. Build create/edit listing multi-step form: basic details → photos upload (drag-and-drop) → RERA & verification → preview → publish.",
+      "depends_on": [4, 5, 6, 12],
+      "output": "web/app/dashboard/"
+    },
+    {
+      "id": 17,
+      "agent": "frontend",
+      "task": "Build in-app chat UI /messages: thread list sidebar (with unread badge, last message preview), chat window (message bubbles, timestamps, share phone button for owner, report button). Integrate Socket.io client for real-time message delivery and unread count updates.",
+      "depends_on": [8, 9, 12],
+      "output": "web/app/messages/"
+    },
+    {
+      "id": 18,
+      "agent": "frontend",
+      "task": "Build saved properties page /saved: grid of shortlisted property cards with remove button. Implement toast notifications (new chat message, listing status changes). Ensure fully responsive layout (mobile-first) for all pages.",
+      "depends_on": [10, 12],
+      "output": "web/app/saved/"
+    },
+    {
+      "id": 19,
+      "agent": "devops",
+      "task": "Write Docker Compose configuration for local development: services for PostgreSQL, Redis, API server, Next.js dev server, and MinIO (S3-compatible local storage). Write Dockerfile for API and Dockerfile for web. Set up environment variable management (.env.example).",
+      "depends_on": [1],
+      "output": "docker-compose.yml Dockerfile.api Dockerfile.web .env.example"
+    },
+    {
+      "id": 20,
+      "agent": "devops",
+      "task": "Write GitHub Actions CI pipeline: on PR to main — run lint (ESLint + Prettier), unit tests (Jest), build check for both API and web. On merge to main — build and push Docker images to ECR, run Prisma migrations on RDS, deploy API to ECS (Fargate) and web to Vercel or ECS. Configure AWS Mumbai region (ap-south-1).",
+      "depends_on": [19],
+      "output": ".github/workflows/ci.yml .github/workflows/deploy.yml"
+    },
+    {
+      "id": 21,
+      "agent": "qa",
+      "task": "Write integration tests for all critical API endpoints: auth OTP flow, property CRUD, photo upload, chat message send/receive, floor plan generation request. Write Playwright E2E tests for: user registration → Aadhaar verify → create listing → buyer search → view property → initiate chat flow.",
+      "depends_on": [3, 4, 5, 8],
+      "output": "tests/integration/ tests/e2e/"
+    }
+  ]
+}

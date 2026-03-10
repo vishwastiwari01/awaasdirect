@@ -1,0 +1,28 @@
+{
+    "name": "awaasdirect",
+    "version": "1.0.0",
+    "private": true,
+    "description": "AwaasDirect — Direct Property Platform for India",
+    "scripts": {
+        "db:generate": "prisma generate",
+        "db:push": "prisma db push",
+        "db:migrate": "prisma migrate dev",
+        "db:seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
+        "db:studio": "prisma studio",
+        "db:reset": "prisma migrate reset --force"
+    },
+    "prisma": {
+        "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    },
+    "devDependencies": {
+        "@types/bcrypt": "^5.0.2",
+        "@types/node": "^20.0.0",
+        "prisma": "^5.0.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@prisma/client": "^5.0.0",
+        "bcrypt": "^5.1.1"
+    }
+}
