@@ -158,7 +158,7 @@ export const createProperty = async (
         data: {
             ...propertyData,
             availableFrom: availableFrom ? new Date(availableFrom) : undefined,
-            ownerId,
+            owner: { connect: { id: ownerId } },
             ...(reraNumber
                 ? {
                     verification: {

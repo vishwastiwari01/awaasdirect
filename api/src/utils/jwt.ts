@@ -3,7 +3,7 @@ import { env } from '../config/env';
 import { Role } from '@prisma/client';
 
 export interface JwtPayload {
-    sub: string;      // user id
+    sub: string;
     email: string | null;
     name: string | null;
     role: Role;
@@ -16,12 +16,16 @@ export interface TokenPair {
 }
 
 export const signTokens = (payload: JwtPayload): TokenPair => {
-    const accessToken = jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-        expiresIn: env.JWT_ACCESS_EXPIRES_IN as string,
-    });
-    const refreshToken = jwt.sign({ sub: payload.sub }, env.JWT_REFRESH_SECRET, {
-        expiresIn: env.JWT_REFRESH_EXPIRES_IN as string,
-    });
+    const accessToken = jwt.sign(
+        payload as object,
+        env.JWT_ACCESS_SECRET as string,
+        { expiresIn: '15m' } as jwt.SignOptions
+    );
+    const refreshToken = jwt.sign(
+        { sub: payload.sub } as object,
+        env.JWT_REFRESH_SECRET as string,
+        { expiresIn: '7d' } as jwt.SignOptions
+    );
     return { accessToken, refreshToken };
 };
 
@@ -32,3 +36,4 @@ export const verifyAccessToken = (token: string): JwtPayload => {
 export const verifyRefreshToken = (token: string): { sub: string } => {
     return jwt.verify(token, env.JWT_REFRESH_SECRET) as { sub: string };
 };
+```

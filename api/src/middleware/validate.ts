@@ -15,6 +15,7 @@ export const validate =
                 return;
             }
             // Replace request target with parsed + coerced data
-            (req as Record<string, unknown>)[target] = result.data;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (req as any)[target] = result.data;
             next();
         };
