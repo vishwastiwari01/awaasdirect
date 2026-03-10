@@ -1,0 +1,424 @@
+// ============================================================
+// AwaasDirect — Prisma Schema
+// PostgreSQL 15 · Prisma 5.x
+// Conventions: cuid IDs, camelCase columns, SCREAMING_SNAKE enums
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  BUYER
+  OWNER
+  ADMIN
+}
+
+enum PropertyType {
+  APARTMENT
+  VILLA
+  INDEPENDENT_HOUSE
+  PLOT
+  COMMERCIAL
+  PG
+}
+
+enum TransactionType {
+  SALE
+  RENT
+}
+
+enum FurnishingStatus {
+  UNFURNISHED
+  SEMI_FURNISHED
+  FULLY_FURNISHED
+}
+
+enum PropertyStatus {
+  ACTIVE
+  SOLD
+  RENTED
+  UNDER_REVIEW
+  DEACTIVATED
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum VirtualTourStatus {
+  NOT_STARTED
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum FloorPlanStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum MessageType {
+  TEXT
+  SYSTEM // e.g. "Owner shared phone number"
+}
+
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(cuid())
+  email        String?   @unique
+  name         String?
+  phone        String    @unique          // Stored hashed (SHA-256 hex) — never plain
+  phoneHash    String    @unique          // SHA-256 of raw phone; used for lookups
+  passwordHash String?                   // Null → OTP-only login
+  image        String?                   // Profile photo URL (S3)
+  role         Role      @default(BUYER)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+
+  // Aadhaar KYC
+  aadhaarVerified   Boolean @default(false)
+  aadhaarHash       String? @unique       // SHA-256 of Aadhaar number; never stored plain
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?                     // Soft delete
+
+  // Relations
+  properties        Property[]
+  savedProperties   SavedProperty[]
+  buyerConversations Conversation[]     @relation("BuyerConversations")
+  sentMessages      Message[]
+  aiPlanRequests    AIPlanRequest[]
+  reports           Report[]           @relation("ReporterReports")
+  reportedBy        Report[]           @relation("ReportedUserReports")
+
+  @@index([role])
+  @@index([aadhaarVerified])
+  @@index([isActive])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// PROPERTY
+// ─────────────────────────────────────────────
+
+model Property {
+  id              String          @id @default(cuid())
+  title           String
+  description     String?
+  type            PropertyType
+  transactionType TransactionType
+  status          PropertyStatus  @default(ACTIVE)
+
+  // Location
+  city            String
+  locality        String
+  address         String?
+  latitude        Float?
+  longitude       Float?
+
+  // Specs
+  bhk             Int?            // Null for plots / commercial
+  sqft            Float
+  plotLength      Float?          // For plots (ft)
+  plotWidth       Float?          // For plots (ft)
+  floors          Int?
+  facing          String?         // North, East, etc.
+  furnishing      FurnishingStatus @default(UNFURNISHED)
+  availableFrom   DateTime?
+
+  // Pricing
+  price           Float           // Sale price or monthly rent (INR)
+  priceNegotiable Boolean         @default(false)
+  maintenanceCharge Float?        // Monthly (for rent)
+  deposit         Float?          // Security deposit (for rent)
+
+  // SEO / Discovery
+  viewCount       Int             @default(0)
+
+  // Full-Text Search — populated via trigger or raw query in service layer
+  // tsvector column is managed by a DB trigger; Prisma treats it as Unsupported
+  searchVector    Unsupported("tsvector")?
+
+  // Soft delete
+  deletedAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Owner
+  ownerId   String
+  owner     User   @relation(fields: [ownerId], references: [id])
+
+  // Relations
+  photos            PropertyPhoto[]
+  verification      PropertyVerification?
+  virtualTour       VirtualTour?
+  conversations     Conversation[]
+  savedBy           SavedProperty[]
+  aiPlanRequests    AIPlanRequest[]
+  reports           Report[]              @relation("ReportedPropertyReports")
+
+  @@index([ownerId])
+  @@index([city])
+  @@index([locality])
+  @@index([type])
+  @@index([transactionType])
+  @@index([status])
+  @@index([bhk])
+  @@index([price])
+  @@index([deletedAt])
+  @@index([createdAt])
+  @@index([city, transactionType, type])      // Composite: most common search combo
+  @@index([searchVector], type: Gin, name: "property_fts_idx")  // GIN index for FTS
+  @@map("properties")
+}
+
+// ─────────────────────────────────────────────
+// PROPERTY PHOTO
+// ─────────────────────────────────────────────
+
+model PropertyPhoto {
+  id         String  @id @default(cuid())
+  url        String                         // S3 pre-signed URL base path
+  s3Key      String  @unique                // S3 object key for deletion
+  isCover    Boolean @default(false)
+  sortOrder  Int     @default(0)
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([propertyId])
+  @@index([propertyId, isCover])
+  @@map("property_photos")
+}
+
+// ─────────────────────────────────────────────
+// PROPERTY VERIFICATION (RERA + Aadhaar status)
+// ─────────────────────────────────────────────
+
+model PropertyVerification {
+  id         String             @id @default(cuid())
+  
+  // RERA
+  reraNumber String?            // Raw RERA registration number
+  reraState  String?            // E.g. "Karnataka", "Maharashtra"
+  reraStatus VerificationStatus @default(PENDING)
+  reraVerifiedAt DateTime?
+
+  // Aadhaar linkage — confirms owner's Aadhaar matches property records
+  aadhaarLinked   Boolean @default(false)
+  aadhaarLinkedAt DateTime?
+
+  // Admin review
+  reviewedById String?
+  reviewNotes  String?
+
+  propertyId String   @unique
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reraStatus])
+  @@index([aadhaarLinked])
+  @@map("property_verifications")
+}
+
+// ─────────────────────────────────────────────
+// VIRTUAL TOUR
+// ─────────────────────────────────────────────
+
+model VirtualTour {
+  id         String            @id @default(cuid())
+  status     VirtualTourStatus @default(NOT_STARTED)
+  embedUrl   String?           // Kuula embed URL (available when READY)
+  kuulaJobId String?           // External job ID for polling
+  triggeredAt DateTime?
+  completedAt DateTime?
+  failureReason String?
+
+  propertyId String   @unique
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@map("virtual_tours")
+}
+
+// ─────────────────────────────────────────────
+// SAVED PROPERTY (Wishlist)
+// ─────────────────────────────────────────────
+
+model SavedProperty {
+  id String @id @default(cuid())
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, propertyId])           // One save per user per property
+  @@index([userId])
+  @@index([propertyId])
+  @@map("saved_properties")
+}
+
+// ─────────────────────────────────────────────
+// CONVERSATION (Chat thread — one per buyer+property pair)
+// ─────────────────────────────────────────────
+
+model Conversation {
+  id String @id @default(cuid())
+
+  buyerId    String
+  buyer      User     @relation("BuyerConversations", fields: [buyerId], references: [id])
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  // Phone sharing — owner can share phone in a thread
+  phoneSharedByOwner Boolean   @default(false)
+  phoneSharedAt      DateTime?
+
+  // Unread tracking
+  buyerLastReadAt    DateTime?
+  ownerLastReadAt    DateTime?
+
+  // Soft delete / archival
+  deletedAt DateTime?
+
+  messages  Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([buyerId, propertyId])          // One conversation per buyer per property
+  @@index([buyerId])
+  @@index([propertyId])
+  @@index([deletedAt])
+  @@map("conversations")
+}
+
+// ─────────────────────────────────────────────
+// MESSAGE
+// ─────────────────────────────────────────────
+
+model Message {
+  id             String      @id @default(cuid())
+  content        String
+  type           MessageType @default(TEXT)
+  readAt         DateTime?
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([conversationId, createdAt])     // Paginated message history
+  @@map("messages")
+}
+
+// ─────────────────────────────────────────────
+// AI PLAN REQUEST (Floor Plan Generator)
+// ─────────────────────────────────────────────
+
+model AIPlanRequest {
+  id     String          @id @default(cuid())
+  status FloorPlanStatus @default(PENDING)
+
+  // Input parameters
+  plotLength   Float              // ft
+  plotWidth    Float              // ft
+  floors       Int    @default(1)
+  roomPrefs    Json               // { bedrooms, bathrooms, kitchen, hall, ... }
+  stylePrefs   String?            // "modern", "traditional", "vastu-compliant"
+
+  // Output
+  layoutJson   Json?              // GPT-4o structured room layout response
+  floorPlanUrl String?            // S3 URL of DALL·E 3 generated PNG
+  s3Key        String?            // S3 key for deletion
+
+  errorMessage String?
+  generationMs Int?               // Time taken for AI generation (ms)
+
+  requesterId String
+  requester   User     @relation(fields: [requesterId], references: [id])
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([requesterId])
+  @@index([propertyId])
+  @@index([status])
+  @@index([requesterId, propertyId, createdAt])  // Rate-limit query: ≤3/user/property/24h
+  @@map("ai_plan_requests")
+}
+
+// ─────────────────────────────────────────────
+// REPORT (polymorphic: targets a Property OR a User)
+// ─────────────────────────────────────────────
+
+model Report {
+  id     String @id @default(cuid())
+  reason String
+  notes  String?
+  resolved Boolean @default(false)
+  resolvedAt DateTime?
+  resolvedById String?
+
+  reporterId String
+  reporter   User   @relation("ReporterReports", fields: [reporterId], references: [id])
+
+  // Polymorphic target — exactly one of these will be set
+  targetPropertyId String?
+  targetProperty   Property? @relation("ReportedPropertyReports", fields: [targetPropertyId], references: [id])
+
+  targetUserId String?
+  targetUser   User?    @relation("ReportedUserReports", fields: [targetUserId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reporterId])
+  @@index([targetPropertyId])
+  @@index([targetUserId])
+  @@index([resolved])
+  @@map("reports")
+}
