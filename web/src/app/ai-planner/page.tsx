@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
@@ -19,7 +19,7 @@ interface GenerateResult {
 const STYLE_OPTIONS = ['modern', 'traditional', 'contemporary', 'vastu'];
 const FLOOR_OPTIONS = ['1', '2', '3', '4'];
 
-export default function AIPlannerPage() {
+function AIPlannerContent() {
     const params = useSearchParams();
     const { isAuthenticated } = useAuthStore();
 
@@ -255,5 +255,13 @@ export default function AIPlannerPage() {
             </main>
             <Footer />
         </>
+    );
+}
+
+export default function AIPlannerPage() {
+    return (
+        <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0D2818' }} />}>
+            <AIPlannerContent />
+        </Suspense>
     );
 }

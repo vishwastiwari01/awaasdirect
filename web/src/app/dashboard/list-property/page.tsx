@@ -56,7 +56,7 @@ export default function ListPropertyPage() {
     const field = (label: string, key: keyof FormData, placeholder: string, type = 'text') => (
         <div>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 6 }}>{label}</label>
-            <input type={type} placeholder={placeholder} {...register(key as string)} style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${(errors as Record<string, unknown>)[key] ? '#FECACA' : 'var(--border)'}`, borderRadius: 10, fontFamily: '"DM Sans",sans-serif', fontSize: 14, outline: 'none', background: 'var(--warm-white)' }} />
+            <input type={type} placeholder={placeholder} {...register(key as any)} style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${(errors as Record<string, unknown>)[key] ? '#FECACA' : 'var(--border)'}`, borderRadius: 10, fontFamily: '"DM Sans",sans-serif', fontSize: 14, outline: 'none', background: 'var(--warm-white)' }} />
             {(errors as Record<string, { message?: string }>)[key] && <p style={{ fontSize: 12, color: '#DC2626', marginTop: 4 }}>{(errors as Record<string, { message?: string }>)[key].message}</p>}
         </div>
     );

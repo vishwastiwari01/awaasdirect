@@ -9,7 +9,7 @@
     },
     "scripts": {
         "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-        "build": "npx tsc --skipLibCheck",
+        "build": "tsc --skipLibCheck",
         "start": "node dist/server.js",
         "postinstall": "prisma generate",
         "db:generate": "prisma generate",

@@ -130,21 +130,21 @@ export default function PropertyDetailPage() {
                             {/* Specs */}
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, background: 'var(--cream)', borderRadius: 16, padding: 24, marginBottom: 32 }}>
                                 {[
-                                    { icon: '🛏️', label: 'BHK', value: p.bhk ? `${p.bhk} BHK` : '—' },
+                                    { icon: '🛏️', label: 'BHK', value: p.bhk ? `${p.bhk as string} BHK` : '—' },
                                     { icon: '📐', label: 'Area', value: formatArea(p.sqft as number) },
-                                    { icon: '🏢', label: 'Type', value: (p.type as string).replace('_', ' ') },
+                                    { icon: '🏢', label: 'Type', value: (p.type as string)?.replace('_', ' ') ?? '—' },
                                     { icon: '🛋️', label: 'Furnishing', value: (p.furnishing as string | undefined)?.replace('_', ' ') ?? '—' },
                                 ].map(({ icon, label, value }) => (
                                     <div key={label} style={{ textAlign: 'center' }}>
                                         <div style={{ fontSize: 24, marginBottom: 6 }}>{icon}</div>
                                         <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: '"DM Mono",monospace', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>{label}</div>
-                                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--charcoal)' }}>{value}</div>
+                                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--charcoal)' }}>{value as any}</div>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Description */}
-                            {p.description && (
+                            {!!p.description && (
                                 <div style={{ marginBottom: 32 }}>
                                     <h3 style={{ fontFamily: '"Playfair Display",serif', fontSize: 20, fontWeight: 700, marginBottom: 12 }}>About this Property</h3>
                                     <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.7 }}>{p.description as string}</p>

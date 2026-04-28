@@ -156,7 +156,7 @@ export const createProperty = async (
 
     const property = await prisma.property.create({
         data: {
-            ...propertyData,
+            ...(propertyData as any),
             availableFrom: availableFrom ? new Date(availableFrom) : undefined,
             owner: { connect: { id: ownerId } },
             ...(reraNumber
@@ -197,7 +197,7 @@ export const updateProperty = async (
     const updated = await prisma.property.update({
         where: { id },
         data: {
-            ...propertyData,
+            ...(propertyData as any),
             ...(availableFrom ? { availableFrom: new Date(availableFrom) } : {}),
         },
         include: { photos: true, verification: true },
