@@ -74,20 +74,17 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 
 // ─── Start Server ─────────────────────────────────────────────
 const start = async () => {
-    try {
-        // Verify DB connection
-        await prisma.$connect();
-        logger.info('✔ Database connected');
+    // Start the HTTP server immediately — Prisma connects lazily on first query
+    httpServer.listen(env.PORT, () => {
+        logger.info(`🚀 AwaasDirect API running on http://localhost:${env.PORT}`);
+        logger.info(`   Environment : ${env.NODE_ENV}`);
+        logger.info(`   Frontend URL: ${env.FRONTEND_URL}`);
+    });
 
-        httpServer.listen(env.PORT, () => {
-            logger.info(`🚀 AwaasDirect API running on http://localhost:${env.PORT}`);
-            logger.info(`   Environment : ${env.NODE_ENV}`);
-            logger.info(`   Frontend URL: ${env.FRONTEND_URL}`);
-        });
-    } catch (err) {
-        logger.error('Failed to start server', { error: err });
-        process.exit(1);
-    }
+    // Try to verify DB connection in the background (non-fatal)
+    prisma.$connect()
+        .then(() => logger.info('✔ Database connected'))
+        .catch((err) => logger.warn('⚠ Database connection pending — will retry on first query', { error: err }));
 };
 
 start();
