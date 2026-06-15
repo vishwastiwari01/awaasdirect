@@ -8,8 +8,9 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import apiClient from '@/lib/api-client';
 import { CITIES, PROPERTY_TYPES } from '@/lib/utils';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, UploadCloud, X as XIcon, Film } from 'lucide-react';
 import Link from 'next/link';
+import { MapPicker } from '@/components/ui/MapPicker';
 
 const schema = z.object({
     title: z.string().min(5, 'Title too short').max(200),
@@ -34,6 +35,8 @@ export default function ListPropertyPage() {
     const router = useRouter();
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+    const [files, setFiles] = useState<File[]>([]);
+    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
 
     const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
         resolver: zodResolver(schema),
@@ -44,13 +47,50 @@ export default function ListPropertyPage() {
     const onSubmit = async (data: FormData) => {
         setError('');
         try {
-            await apiClient.post('/api/properties', { ...data, bhk: data.bhk ?? undefined, reraNumber: data.reraNumber || undefined });
+            const res = await apiClient.post('/api/properties', { 
+                ...data, 
+                bhk: data.bhk ?? undefined, 
+                reraNumber: data.reraNumber || undefined,
+                latitude: location?.lat,
+                longitude: location?.lng
+            });
+            const propertyId = res.data.data.id;
+
+            if (files.length > 0) {
+                const formData = new FormData();
+                files.forEach(f => formData.append('photos', f));
+                await apiClient.post(`/api/properties/${propertyId}/photos`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
+
             setSuccess(true);
             setTimeout(() => router.push('/dashboard'), 1500);
         } catch (err: unknown) {
             const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-            setError(msg ?? 'Failed to create listing. Please try again.');
+            setError(msg ?? 'Failed to create listing or upload media. Please try again.');
         }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const newFiles = Array.from(e.target.files);
+            if (files.length + newFiles.length > 10) {
+                setError('You can upload a maximum of 10 media files.');
+                return;
+            }
+            const invalidFile = newFiles.find(f => f.size > 50 * 1024 * 1024);
+            if (invalidFile) {
+                setError('File size must be under 50MB.');
+                return;
+            }
+            setFiles(prev => [...prev, ...newFiles]);
+            setError('');
+        }
+    };
+
+    const removeFile = (index: number) => {
+        setFiles(prev => prev.filter((_, i) => i !== index));
     };
 
     const field = (label: string, key: keyof FormData, placeholder: string, type = 'text') => (
@@ -124,6 +164,13 @@ export default function ListPropertyPage() {
                                 </div>
                                 {field('Locality / Area', 'locality', 'Whitefield, Koramangala, Gachibowli…')}
                             </div>
+                            <div style={{ marginTop: 24 }}>
+                                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 6 }}>Exact Location <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(Drag pin to pinpoint)</span></label>
+                                <div style={{ height: 300, borderRadius: 12, overflow: 'hidden', border: '1.5px solid var(--border)' }}>
+                                    <MapPicker onLocationSelect={(lat, lng) => setLocation({ lat, lng })} />
+                                </div>
+                                {location && <p style={{ fontSize: 12, color: 'var(--forest)', marginTop: 8 }}>✓ Location pinned ({location.lat.toFixed(4)}, {location.lng.toFixed(4)})</p>}
+                            </div>
                         </div>
 
                         {/* Details */}
@@ -148,6 +195,33 @@ export default function ListPropertyPage() {
                                     </select>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Media Upload */}
+                        <div style={{ background: 'white', borderRadius: 16, border: '1.5px solid var(--border)', padding: 28, marginBottom: 20 }}>
+                            <div style={{ fontSize: 12, fontFamily: '"DM Mono",monospace', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--forest-light)', marginBottom: 20 }}>Media (Images & Videos)</div>
+                            <div style={{ border: '2px dashed var(--border)', borderRadius: 12, padding: '32px 24px', textAlign: 'center', background: 'var(--warm-white)', position: 'relative', overflow: 'hidden' }}>
+                                <input type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" onChange={handleFileChange} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', zIndex: 10 }} title="Upload media" />
+                                <UploadCloud size={32} color="var(--forest)" style={{ margin: '0 auto 12px' }} />
+                                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 4 }}>Drag & drop or click to upload</div>
+                                <div style={{ fontSize: 12, color: 'var(--muted)' }}>Supports JPG, PNG, WEBP, MP4 (Max 50MB, up to 10 files)</div>
+                            </div>
+                            {files.length > 0 && (
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 12, marginTop: 16 }}>
+                                    {files.map((file, i) => (
+                                        <div key={i} style={{ position: 'relative', height: 100, borderRadius: 8, border: '1px solid var(--border)', overflow: 'hidden', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {file.type.startsWith('image/') ? (
+                                                <img src={URL.createObjectURL(file)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="preview" />
+                                            ) : (
+                                                <div style={{ textAlign: 'center', color: 'var(--muted)' }}><Film size={24} style={{ margin: '0 auto 4px' }}/><div style={{ fontSize: 10 }}>Video</div></div>
+                                            )}
+                                            <button type="button" onClick={(e) => { e.preventDefault(); removeFile(i); }} style={{ position: 'absolute', top: 4, right: 4, width: 24, height: 24, background: 'rgba(0,0,0,0.5)', color: 'white', borderRadius: '50%', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20 }}>
+                                                <XIcon size={14} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         {/* RERA */}

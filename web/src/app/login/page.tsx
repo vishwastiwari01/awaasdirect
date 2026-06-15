@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Hand, AlertTriangle } from 'lucide-react';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import { signInWithGoogle } from '@/lib/supabase/client';
 import { createClient } from '@/lib/supabase/client';
@@ -112,7 +113,7 @@ export default function LoginPage() {
                     <div className="mb-8">
                         <h2 className="text-[28px] font-bold text-gray-900 mb-2 tracking-tight"
                             style={{ fontFamily: 'var(--font-playfair, "Playfair Display", serif)' }}>
-                            Welcome back 👋
+                            <span className="flex items-center gap-2">Welcome back <Hand className="w-6 h-6 text-[#E07B39]" /></span>
                         </h2>
                         <p className="text-gray-500 text-sm">Sign in to access your account</p>
                     </div>
@@ -120,7 +121,7 @@ export default function LoginPage() {
                     {/* Error */}
                     {error && (
                         <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl mb-6 flex items-center gap-2">
-                            <span className="text-red-500">⚠</span> {error}
+                            <AlertTriangle className="w-4 h-4 text-red-500" /> {error}
                         </div>
                     )}
 

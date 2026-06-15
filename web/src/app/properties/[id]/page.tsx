@@ -4,11 +4,13 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { MapPin, BedDouble, Square, Shield, MessageSquare, Heart, Building, Calendar, ChevronLeft } from 'lucide-react';
+import { MapPin, BedDouble, Square, Shield, MessageSquare, Heart, Building, Calendar, ChevronLeft, Play, Sparkles, Sofa } from 'lucide-react';
 import apiClient from '@/lib/api-client';
 import { formatPrice, formatArea } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
+import { MediaGallery } from '@/components/ui/MediaGallery';
+import { MapViewer } from '@/components/ui/MapViewer';
 
 const IMG_GRADIENTS = [
     'linear-gradient(135deg,#D8F3DC,#95D5B2,#52B788)',
@@ -69,7 +71,7 @@ export default function PropertyDetailPage() {
             <>
                 <Navbar />
                 <div style={{ paddingTop: 64, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, background: 'var(--warm-white)' }}>
-                    <div style={{ fontSize: 60 }}>🏚️</div>
+                    <Building size={60} color="var(--muted)" />
                     <h2 style={{ fontFamily: '"Playfair Display",serif', fontSize: 28 }}>Property not found</h2>
                     <Link href="/properties"><button className="btn-primary">Browse Other Listings</button></Link>
                 </div>
@@ -95,25 +97,24 @@ export default function PropertyDetailPage() {
                         <ChevronLeft size={16} /> Back to listings
                     </button>
 
-                    {/* Image gallery */}
-                    <div style={{ borderRadius: 20, overflow: 'hidden', height: 400, background: IMG_GRADIENTS[0], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80, position: 'relative', marginBottom: 32 }}>
-                        <span style={{ zIndex: 1 }}>🏡</span>
+                    {/* Media gallery */}
+                    <MediaGallery photos={(p.photos as any) || []}>
                         {/* Badges */}
-                        <div style={{ position: 'absolute', top: 20, left: 20, display: 'flex', gap: 8 }}>
+                        <div style={{ position: 'absolute', top: 20, left: 20, display: 'flex', gap: 8, zIndex: 20 }}>
                             {hasRERA && <span style={{ background: 'var(--forest)', color: 'white', fontFamily: '"DM Mono",monospace', fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 8, letterSpacing: '0.05em' }}>RERA ✓ {verification?.reraNumber}</span>}
-                            {owner?.aadhaarVerified && <span style={{ background: 'white', color: 'var(--forest)', fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 8 }}>✅ Verified Owner</span>}
+                            {owner?.aadhaarVerified && <span style={{ background: 'white', color: 'var(--forest)', fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 4 }}><Shield size={12} /> Verified Owner</span>}
                         </div>
                         {/* 3D tour */}
                         {has3D && (
-                            <button style={{ position: 'absolute', bottom: 20, right: 20, background: 'var(--amber)', color: 'white', border: 'none', borderRadius: 10, padding: '10px 20px', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                ▶ View 3D Tour
+                            <button style={{ position: 'absolute', bottom: 20, right: 20, background: 'var(--amber)', color: 'white', border: 'none', borderRadius: 10, padding: '10px 20px', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, zIndex: 20 }}>
+                                <Play size={14} fill="white" /> View 3D Tour
                             </button>
                         )}
                         {/* Favorite */}
-                        <button onClick={() => setSaved(!saved)} style={{ position: 'absolute', top: 20, right: 20, width: 44, height: 44, background: 'white', borderRadius: '50%', border: 'none', cursor: 'pointer', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>
-                            {saved ? '❤️' : '🤍'}
+                        <button onClick={() => setSaved(!saved)} style={{ position: 'absolute', top: 20, right: 20, width: 44, height: 44, background: 'white', borderRadius: '50%', border: 'none', cursor: 'pointer', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.15)', zIndex: 20 }}>
+                            <Heart size={20} fill={saved ? '#EF4444' : 'transparent'} color={saved ? '#EF4444' : 'var(--charcoal)'} />
                         </button>
-                    </div>
+                    </MediaGallery>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 40 }}>
                         {/* Left: details */}
@@ -130,13 +131,13 @@ export default function PropertyDetailPage() {
                             {/* Specs */}
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, background: 'var(--cream)', borderRadius: 16, padding: 24, marginBottom: 32 }}>
                                 {[
-                                    { icon: '🛏️', label: 'BHK', value: p.bhk ? `${p.bhk as string} BHK` : '—' },
-                                    { icon: '📐', label: 'Area', value: formatArea(p.sqft as number) },
-                                    { icon: '🏢', label: 'Type', value: (p.type as string)?.replace('_', ' ') ?? '—' },
-                                    { icon: '🛋️', label: 'Furnishing', value: (p.furnishing as string | undefined)?.replace('_', ' ') ?? '—' },
+                                    { icon: <BedDouble size={24} color="var(--forest)" />, label: 'BHK', value: p.bhk ? `${p.bhk as string} BHK` : '—' },
+                                    { icon: <Square size={24} color="var(--forest)" />, label: 'Area', value: formatArea(p.sqft as number) },
+                                    { icon: <Building size={24} color="var(--forest)" />, label: 'Type', value: (p.type as string)?.replace('_', ' ') ?? '—' },
+                                    { icon: <Sofa size={24} color="var(--forest)" />, label: 'Furnishing', value: (p.furnishing as string | undefined)?.replace('_', ' ') ?? '—' },
                                 ].map(({ icon, label, value }) => (
                                     <div key={label} style={{ textAlign: 'center' }}>
-                                        <div style={{ fontSize: 24, marginBottom: 6 }}>{icon}</div>
+                                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}>{icon}</div>
                                         <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: '"DM Mono",monospace', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>{label}</div>
                                         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--charcoal)' }}>{value as any}</div>
                                     </div>
@@ -153,12 +154,22 @@ export default function PropertyDetailPage() {
 
                             {/* AI floor plan for plots */}
                             {p.type === 'PLOT' && (
-                                <div style={{ background: 'var(--charcoal)', borderRadius: 16, padding: 24, color: 'white' }}>
+                                <div style={{ background: 'var(--charcoal)', borderRadius: 16, padding: 24, color: 'white', marginBottom: 32 }}>
                                     <div style={{ fontSize: 13, fontWeight: 700, fontFamily: '"DM Mono",monospace', color: 'var(--forest-light)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>AI Floor Plan Generator</div>
                                     <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', marginBottom: 16 }}>This is a plot. Generate a custom floor plan tailored to your preferences using AI.</p>
                                     <Link href={`/ai-planner?propertyId=${id}`}>
-                                        <button style={{ background: 'linear-gradient(135deg,var(--forest),var(--forest-mid))', color: 'white', border: 'none', borderRadius: 10, padding: '12px 24px', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>✨ Generate Floor Plan</button>
+                                        <button style={{ background: 'linear-gradient(135deg,var(--forest),var(--forest-mid))', color: 'white', border: 'none', borderRadius: 10, padding: '12px 24px', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}><Sparkles size={16} /> Generate Floor Plan</button>
                                     </Link>
+                                </div>
+                            )}
+
+                            {/* Map Location */}
+                            {p.latitude && p.longitude && (
+                                <div style={{ marginBottom: 32 }}>
+                                    <h3 style={{ fontFamily: '"Playfair Display",serif', fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Location Map</h3>
+                                    <div style={{ height: 350, borderRadius: 16, border: '1.5px solid var(--border)', overflow: 'hidden' }}>
+                                        <MapViewer lat={p.latitude as number} lng={p.longitude as number} />
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -184,7 +195,7 @@ export default function PropertyDetailPage() {
                                 <div style={{ background: 'var(--cream)', padding: 16, minHeight: 160, display: 'flex', flexDirection: 'column', gap: 10 }}>
                                     <div style={{ alignSelf: 'flex-start', maxWidth: '80%' }}>
                                         <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: '14px 14px 14px 4px', padding: '10px 14px', fontSize: 13, lineHeight: 1.5 }}>
-                                            Hello! I&apos;m the owner of this property. Feel free to ask any questions! 😊
+                                            Hello! I&apos;m the owner of this property. Feel free to ask any questions!
                                         </div>
                                         <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 4 }}>Just now</div>
                                     </div>
@@ -206,7 +217,7 @@ export default function PropertyDetailPage() {
                                             <MessageSquare size={14} /> {chatLoading ? 'Sending…' : 'Chat with Owner'}
                                         </button>
                                         <button onClick={() => setSaved(!saved)} style={{ padding: '10px 14px', border: '1.5px solid var(--border)', borderRadius: 8, background: 'white', cursor: 'pointer', fontSize: 16 }}>
-                                            {saved ? '❤️' : '🤍'}
+                                            <Heart size={20} fill={saved ? '#EF4444' : 'transparent'} color={saved ? '#EF4444' : 'var(--charcoal)'} />
                                         </button>
                                     </div>
                                 </div>

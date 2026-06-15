@@ -56,11 +56,18 @@ export default function DashboardPage() {
                                 </div>
                             )}
                         </div>
-                        <Link href="/dashboard/list-property">
-                            <button style={{ background: 'var(--amber)', color: 'white', border: 'none', borderRadius: 10, padding: '12px 24px', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <Plus size={16} /> List New Property
-                            </button>
-                        </Link>
+                        <div style={{ display: 'flex', gap: 12 }}>
+                            <Link href="/dashboard/settings">
+                                <button style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, padding: '12px 24px', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <Settings size={16} /> Settings
+                                </button>
+                            </Link>
+                            <Link href="/dashboard/list-property">
+                                <button style={{ background: 'var(--amber)', color: 'white', border: 'none', borderRadius: 10, padding: '12px 24px', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <Plus size={16} /> List New Property
+                                </button>
+                            </Link>
+                        </div>
                     </div>
 
                     {/* Stats */}
