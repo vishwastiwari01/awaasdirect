@@ -16,43 +16,37 @@ export function AIPlannerTeaser() {
     const [style, setStyle] = useState('modern');
 
     return (
-        <section style={{
-            background: '#0D2818',
-            color: 'white',
-            position: 'relative',
-            overflow: 'hidden',
-            padding: '96px 80px',
-        }}>
+        <section className="bg-[#0D2818] text-white relative overflow-hidden py-16 px-6 md:py-24 md:px-20">
             {/* Background effects */}
-            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-                <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: 700, height: 700, borderRadius: '50%', background: 'radial-gradient(circle, rgba(27,67,50,0.5) 0%, transparent 65%)' }} />
-                <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(224,123,57,0.12) 0%, transparent 65%)' }} />
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute -top-[20%] -left-[10%] w-[700px] h-[700px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(27,67,50,0.5) 0%, transparent 65%)' }} />
+                <div className="absolute -bottom-[10%] -right-[5%] w-[400px] h-[400px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(224,123,57,0.12) 0%, transparent 65%)' }} />
                 {/* Grid lines */}
-                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(82,183,136,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(82,183,136,0.04) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+                <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(82,183,136,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(82,183,136,0.04) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center', position: 'relative', zIndex: 1 }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
                 {/* ── Left: copy ── */}
                 <div>
-                    <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#52B788', marginBottom: 14 }}>AI House Planner</span>
-                    <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(32px,3.5vw,48px)', fontWeight: 800, lineHeight: 1.12, color: 'white', marginBottom: 16 }}>
+                    <span className="block font-mono text-[11px] font-medium tracking-[0.15em] uppercase text-[#52B788] mb-3.5">AI House Planner</span>
+                    <h2 className="font-serif text-3xl md:text-4xl lg:text-[48px] font-black leading-[1.12] text-white mb-4">
                         Design Your<br />
-                        <em style={{ fontStyle: 'italic', color: '#F4A261' }}>Dream Floor Plan</em><br />
+                        <em className="italic text-[#F4A261]">Dream Floor Plan</em><br />
                         with AI
                     </h2>
-                    <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, maxWidth: 480, marginBottom: 40 }}>
+                    <p className="text-base text-white/60 leading-[1.7] max-w-[480px] mb-10">
                         Enter plot dimensions, floors and style — our AI returns a Vastu-compliant 2D floor plan with labeled rooms in under 30 seconds.
                     </p>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                    <div className="flex flex-col gap-4.5">
                         {FEATURES.map(({ icon, title, desc }) => (
-                            <div key={title} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-                                <div style={{ width: 42, height: 42, borderRadius: 11, background: 'rgba(82,183,136,0.12)', border: '1px solid rgba(82,183,136,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <div key={title} className="flex gap-4 items-start">
+                                <div className="w-[42px] h-[42px] rounded-[11px] bg-[#52B788]/10 border border-[#52B788]/20 flex items-center justify-center shrink-0 mb-4 lg:mb-0">
                                     {icon}
                                 </div>
                                 <div>
-                                    <h4 style={{ fontSize: 15, fontWeight: 600, color: 'white', marginBottom: 3 }}>{title}</h4>
-                                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.55 }}>{desc}</p>
+                                    <h4 className="text-[15px] font-semibold text-white mb-1">{title}</h4>
+                                    <p className="text-[13px] text-white/50 leading-[1.55]">{desc}</p>
                                 </div>
                             </div>
                         ))}
@@ -60,70 +54,53 @@ export function AIPlannerTeaser() {
                 </div>
 
                 {/* ── Right: glass card ── */}
-                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24, padding: 28, backdropFilter: 'blur(10px)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-mono)', letterSpacing: '0.12em', color: '#52B788', textTransform: 'uppercase', marginBottom: 22, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-7 backdrop-blur-md">
+                    <div className="text-xs font-bold font-mono tracking-[0.12em] text-[#52B788] uppercase mb-5 flex items-center gap-2">
                         <Sparkles size={14} /> AI Floor Plan Generator
                     </div>
 
                     {/* Inputs */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3.5">
                         {[['Plot Length (ft)', len, setLen, '40'], ['Plot Width (ft)', wid, setWid, '60']].map(([label, val, setter, ph]) => (
                             <div key={label as string}>
                                 <label className="label">{label as string}</label>
-                                <input value={val as string} onChange={e => (setter as (v: string) => void)(e.target.value)} placeholder={ph as string} className="ai-input" />
+                                <input value={val as string} onChange={e => (setter as (v: string) => void)(e.target.value)} placeholder={ph as string} className="ai-input w-full" />
                             </div>
                         ))}
                         <div>
                             <label className="label">Floors</label>
-                            <select value={floors} onChange={e => setFloors(e.target.value)} className="ai-input">
+                            <select value={floors} onChange={e => setFloors(e.target.value)} className="ai-input w-full">
                                 {['1', '2', '3', '4'].map(n => <option key={n} value={n}>{n} Floor{+n > 1 ? 's' : ''}</option>)}
                             </select>
                         </div>
                         <div>
                             <label className="label">Style</label>
-                            <select value={style} onChange={e => setStyle(e.target.value)} className="ai-input">
+                            <select value={style} onChange={e => setStyle(e.target.value)} className="ai-input w-full text-black">
                                 {['modern', 'traditional', 'contemporary', 'vastu'].map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                             </select>
                         </div>
                     </div>
 
                     <Link href={`/ai-planner?length=${len}&width=${wid}&floors=${floors}&style=${style}`}>
-                        <button style={{
-                            width: '100%', padding: '14px', border: 'none', borderRadius: 12, cursor: 'pointer',
-                            background: 'linear-gradient(135deg, #1B4332, #2D6A4F)',
-                            color: 'white', fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 700,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                            transition: 'all 0.25s', marginBottom: 16,
-                            boxShadow: '0 4px 16px rgba(27,67,50,0.4)',
-                        }}
-                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(82,183,136,0.3)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(27,67,50,0.4)'; }}
-                        >
+                        <button className="w-full p-3.5 border-none rounded-xl cursor-pointer bg-gradient-to-br from-[#1B4332] to-[#2D6A4F] text-white font-sans text-[15px] font-bold flex items-center justify-center gap-2.5 transition-all mb-4 shadow-[0_4px_16px_rgba(27,67,50,0.4)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(82,183,136,0.3)]">
                             <Sparkles size={16} /> Generate Floor Plan
                         </button>
                     </Link>
 
                     {/* Room preview */}
-                    <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 14, padding: 14 }}>
-                        <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.4)', marginBottom: 10 }}>Sample Output</div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <div className="bg-black/20 rounded-2xl p-3.5">
+                        <div className="text-[10px] font-mono uppercase tracking-[0.1em] text-white/40 mb-2.5">Sample Output</div>
+                        <div className="grid grid-cols-2 gap-2">
                             {[
                                 { e: '🛋️', label: 'Living Room', dim: '18×14 ft' },
                                 { e: '🍳', label: 'Kitchen', dim: '12×10 ft' },
                                 { e: '🛏️', label: 'Master BR', dim: '14×12 ft' },
                                 { e: '🚿', label: 'Bathroom', dim: '8×6 ft' },
                             ].map(({ e, label, dim }) => (
-                                <div key={label} style={{
-                                    background: 'rgba(255,255,255,0.05)', borderRadius: 10, padding: '10px 12px',
-                                    border: '1px solid rgba(255,255,255,0.06)',
-                                    transition: 'all 0.2s', cursor: 'pointer',
-                                }}
-                                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(82,183,136,0.4)'; (e.currentTarget as HTMLDivElement).style.background = 'rgba(82,183,136,0.08)'; }}
-                                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.05)'; }}
-                                >
-                                    <div style={{ fontSize: 18, marginBottom: 4 }}>{e}</div>
-                                    <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{label}</div>
-                                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)' }}>{dim}</div>
+                                <div key={label} className="bg-white/5 rounded-xl p-2.5 px-3 border border-white/5 transition-all cursor-pointer hover:border-[#52B788]/40 hover:bg-[#52B788]/10">
+                                    <div className="text-lg mb-1">{e}</div>
+                                    <div className="text-[11px] font-semibold text-white/80">{label}</div>
+                                    <div className="text-[10px] text-white/40 font-mono">{dim}</div>
                                 </div>
                             ))}
                         </div>

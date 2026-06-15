@@ -7,32 +7,27 @@ export function HowItWorks() {
     ];
 
     return (
-        <section style={{ background: 'var(--cream)', padding: '96px 80px' }}>
-            <div style={{ textAlign: 'center', marginBottom: 60 }}>
-                <span className="section-label" style={{ display: 'block', textAlign: 'center' }}>How It Works</span>
-                <h2 className="section-title" style={{ textAlign: 'center', marginBottom: 0 }}>Four Steps to Your New Home</h2>
+        <section className="bg-[#FFFDF9] py-16 px-6 md:py-24 md:px-12 lg:px-20 overflow-hidden">
+            <div className="text-center mb-12 md:mb-16">
+                <span className="font-mono text-xs font-semibold tracking-widest uppercase text-[#52B788] mb-4 block">How It Works</span>
+                <h2 className="font-serif text-3xl md:text-4xl lg:text-[44px] font-black text-gray-900 leading-tight">Four Steps to Your New Home</h2>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 24, position: 'relative' }}>
-                {/* Connecting gradient line */}
-                <div style={{ position: 'absolute', top: 28, left: '15%', right: '15%', height: 2, background: 'linear-gradient(to right, #52B788, #E07B39)', zIndex: 0, borderRadius: 999 }} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-8 relative">
+                {/* Connecting gradient line (Hidden on mobile) */}
+                <div className="hidden lg:block absolute top-[28px] left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-[#52B788] to-[#E07B39] z-0 rounded-full" />
 
                 {steps.map(({ num, emoji, title, desc }) => (
-                    <div key={num} style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+                    <div key={num} className="text-center relative z-10 flex flex-col items-center">
                         {/* Step circle */}
-                        <div style={{
-                            width: 56, height: 56, background: 'white',
-                            border: '2px solid #52B788', borderRadius: '50%',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            margin: '0 auto 20px',
-                            fontFamily: 'var(--font-playfair)', fontSize: 20, fontWeight: 800, color: '#1B4332',
-                            boxShadow: '0 4px 16px rgba(82,183,136,0.2)',
-                        }}>{num}</div>
+                        <div className="w-14 h-14 bg-white border-2 border-[#52B788] rounded-full flex items-center justify-center mb-5 font-serif text-xl font-black text-[#1B4332] shadow-[0_4px_16px_rgba(82,183,136,0.2)]">
+                            {num}
+                        </div>
 
                         {/* Emoji */}
-                        <div style={{ fontSize: 28, marginBottom: 12 }}>{emoji}</div>
-                        <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>{title}</h3>
-                        <p style={{ fontSize: 13, color: '#6B6B6B', lineHeight: 1.65 }}>{desc}</p>
+                        <div className="text-3xl mb-3">{emoji}</div>
+                        <h3 className="text-base font-bold text-gray-900 mb-2">{title}</h3>
+                        <p className="text-sm text-gray-600 leading-relaxed max-w-xs">{desc}</p>
                     </div>
                 ))}
             </div>

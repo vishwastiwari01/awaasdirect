@@ -28,15 +28,15 @@ export function FeaturedListings() {
     return (
         <section className="bg-[#FDFAF6] px-6 lg:px-20 pb-24">
             {/* Header */}
-            <div className="flex items-end justify-between mb-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 gap-4">
                 <div>
                     <span className="block text-xs font-medium tracking-widest uppercase text-[#52B788] mb-3">Featured Listings</span>
-                    <h2 className="text-4xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", serif)' }}>
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", serif)' }}>
                         Hand-Picked Properties
                     </h2>
                 </div>
-                <Link href="/properties" className="text-sm font-semibold text-[#1B4332] border-2 border-[#1B4332] px-5 py-2 rounded-xl hover:bg-[#1B4332] hover:text-white transition-all">
-                    View All →
+                <Link href="/properties" className="text-sm font-semibold text-[#1B4332] border-2 border-[#1B4332] px-5 py-2 rounded-xl hover:bg-[#1B4332] hover:text-white transition-all w-full sm:w-auto text-center">
+                    View All &rarr;
                 </Link>
             </div>
 

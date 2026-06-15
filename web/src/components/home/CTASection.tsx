@@ -2,29 +2,29 @@ import Link from 'next/link';
 
 export function CTASection() {
     return (
-        <section style={{ background: 'linear-gradient(135deg, #0D2818 0%, #1B4332 60%, #2D6A4F 100%)', padding: '96px 80px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <section className="bg-gradient-to-br from-[#0D2818] via-[#1B4332] to-[#2D6A4F] py-16 px-6 md:py-24 md:px-20 text-center relative overflow-hidden">
             {/* Grid overlay */}
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(82,183,136,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(82,183,136,0.05) 1px, transparent 1px)', backgroundSize: '48px 48px', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)', width: 800, height: 400, background: 'radial-gradient(ellipse, rgba(82,183,136,0.2) 0%, transparent 60%)', pointerEvents: 'none' }} />
+            <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(82,183,136,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(82,183,136,0.05) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+            <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none" style={{ background: 'radial-gradient(ellipse, rgba(82,183,136,0.2) 0%, transparent 60%)' }} />
 
-            <div style={{ position: 'relative', zIndex: 1 }}>
-                <span style={{ display: 'inline-block', fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#52B788', marginBottom: 16 }}>Ready to Start?</span>
-                <h2 style={{
-                    fontFamily: 'var(--font-playfair)', fontWeight: 900, color: 'white',
-                    fontSize: 'clamp(34px,4.5vw,56px)', lineHeight: 1.1, letterSpacing: '-0.02em',
-                    marginBottom: 18,
-                }}>
-                    Find Your <em style={{ color: '#F4A261', fontStyle: 'italic' }}>Dream Home</em><br />the Direct Way
+            <div className="relative z-10 max-w-2xl mx-auto">
+                <span className="inline-block font-mono text-[11px] font-medium tracking-[0.15em] uppercase text-[#52B788] mb-4">Ready to Start?</span>
+                <h2 className="font-serif font-black text-white text-4xl md:text-5xl lg:text-[56px] leading-[1.1] tracking-tight mb-5">
+                    Find Your <em className="text-[#F4A261] italic">Dream Home</em><br />the Direct Way
                 </h2>
-                <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.6)', maxWidth: 460, margin: '0 auto 36px', lineHeight: 1.65 }}>
+                <p className="text-[17px] text-white/60 max-w-[460px] mx-auto mb-9 leading-relaxed">
                     Join 18,000+ verified owners and buyers who chose zero brokerage.
                 </p>
-                <div style={{ display: 'flex', gap: 14, justifyContent: 'center' }}>
-                    <Link href="/properties">
-                        <button className="btn-white" style={{ padding: '14px 32px', fontSize: 15 }}>🔍 Browse Listings</button>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link href="/properties" className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto bg-white text-[#1B4332] hover:bg-gray-100 px-8 py-3.5 rounded-full font-semibold text-[15px] transition-colors shadow-lg">
+                            🔍 Browse Listings
+                        </button>
                     </Link>
-                    <Link href="/register">
-                        <button className="btn-outline-white" style={{ padding: '14px 32px', fontSize: 15 }}>List Property Free →</button>
+                    <Link href="/register" className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto bg-transparent text-white border border-white/30 hover:bg-white/10 px-8 py-3.5 rounded-full font-semibold text-[15px] transition-colors">
+                            List Property Free &rarr;
+                        </button>
                     </Link>
                 </div>
             </div>
