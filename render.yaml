@@ -26,12 +26,10 @@ services:
       # Frontend URL for CORS
       - key: FRONTEND_URL
         sync: false
-      # AWS S3 for uploads
-      - key: AWS_REGION
-        value: ap-south-1
-      - key: AWS_ACCESS_KEY_ID
+      # Supabase Storage for uploads
+      - key: SUPABASE_URL
         sync: false
-      - key: AWS_SECRET_ACCESS_KEY
+      - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
-      - key: S3_BUCKET_NAME
-        sync: false
+      - key: SUPABASE_BUCKET_NAME
+        value: awaasdirect-assets

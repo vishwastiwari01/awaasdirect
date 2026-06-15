@@ -17,10 +17,9 @@ const envSchema = z.object({
     JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
     SUPABASE_JWT_SECRET: z.string().min(32),
 
-    AWS_REGION: z.string().default('ap-south-1'),
-    AWS_ACCESS_KEY_ID: z.string().min(1),
-    AWS_SECRET_ACCESS_KEY: z.string().min(1),
-    S3_BUCKET_NAME: z.string().min(1),
+    SUPABASE_URL: z.string().url(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+    SUPABASE_BUCKET_NAME: z.string().min(1).default('awaasdirect-assets'),
 
     OPENAI_API_KEY: z.string().min(1),
 

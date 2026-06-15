@@ -1,10 +1,9 @@
 import { z } from 'zod';
-import { Prisma, PropertyType, TransactionType, FurnishingStatus, PropertyStatus } from '@prisma/client';
 import prisma from '../config/database';
 import { logger } from '../utils/logger';
+import { Prisma, PropertyType, TransactionType, FurnishingStatus, PropertyStatus } from '@prisma/client';
 import { sanitizeText } from '../utils/sanitize';
-import { s3Client, S3_BUCKET } from '../config/s3';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { supabaseStorage, STORAGE_BUCKET } from '../config/storage';
 import crypto from 'crypto';
 
 // ─── Zod Schemas ─────────────────────────────────────────────
@@ -252,27 +251,33 @@ export const uploadPropertyPhotos = async (
     if (!existing) throw Object.assign(new Error('Property not found'), { status: 404 });
     if (existing.ownerId !== ownerId) throw Object.assign(new Error('Forbidden'), { status: 403 });
 
-    // 2. Upload each file to S3 and save URL to DB
+    // 2. Upload each file to Supabase Storage and save URL to DB
     const uploadedPhotos = [];
     for (const file of files) {
-        const fileExt = file.mimetype.split('/')[1];
+        const fileExt = file.originalname.split('.').pop();
         const key = `properties/${propertyId}/${crypto.randomBytes(16).toString('hex')}.${fileExt}`;
 
-        await s3Client.send(
-            new PutObjectCommand({
-                Bucket: S3_BUCKET,
-                Key: key,
-                Body: file.buffer,
-                ContentType: file.mimetype,
-            })
-        );
+        const { data, error } = await supabaseStorage.storage
+            .from(STORAGE_BUCKET)
+            .upload(key, file.buffer, {
+                contentType: file.mimetype,
+                upsert: false,
+            });
 
-        const url = `https://${S3_BUCKET}.s3.amazonaws.com/${key}`;
+        if (error) {
+            logger.error('Supabase Storage upload failed', { error: error.message });
+            throw new Error('File upload failed');
+        }
+
+        const { data: { publicUrl } } = supabaseStorage.storage
+            .from(STORAGE_BUCKET)
+            .getPublicUrl(key);
 
         const photo = await prisma.propertyPhoto.create({
             data: {
                 propertyId,
-                url,
+                url: publicUrl,
+                s3Key: key,
                 isCover: uploadedPhotos.length === 0, // First photo is cover if not existing
             },
         });

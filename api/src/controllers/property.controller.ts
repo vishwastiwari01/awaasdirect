@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../middleware/errorHandler';
-import { sendSuccess, sendCreated } from '../utils/response';
+import { sendSuccess, sendCreated, sendError } from '../utils/response';
 import * as ListingService from '../services/listing.service';
 
 export const list = asyncHandler(async (req: Request, res: Response) => {

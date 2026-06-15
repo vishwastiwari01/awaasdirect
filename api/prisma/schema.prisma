@@ -86,6 +86,7 @@ model User {
   name         String?
   phone        String    @unique          // Stored hashed (SHA-256 hex) — never plain
   phoneHash    String    @unique          // SHA-256 of raw phone; used for lookups
+  supabaseId   String?   @unique
   passwordHash String?                   // Null → OTP-only login
   image        String?                   // Profile photo URL (S3)
   role         Role      @default(BUYER)
