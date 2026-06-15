@@ -16,9 +16,13 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-    title: 'AwaasDirect — India\'s Direct Housing Marketplace',
-    description: 'Buy or rent verified properties directly from owners. No brokers. No commissions. AI-powered virtual tours and floor plans.',
-    keywords: 'real estate India, buy property, rent flat, no broker, RERA verified, Bangalore, Hyderabad, Mumbai',
+    title: 'My Awaas — India\'s Direct Property Marketplace',
+    description: 'Buy, sell or rent verified properties directly from owners on My Awaas. No brokers, no commissions. Find your perfect home in India.',
+    keywords: 'my awaas, real estate India, buy property, rent flat, no broker, RERA verified, Bangalore, Hyderabad, Mumbai, Delhi',
+    icons: {
+        icon: '/icon.png',
+        apple: '/icon.png',
+    },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

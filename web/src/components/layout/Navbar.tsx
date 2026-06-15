@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Home, Menu, X } from 'lucide-react';
+import Image from 'next/image';
+import { Menu, X } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
 export function Navbar() {
@@ -24,12 +25,14 @@ export function Navbar() {
 
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 bg-[#1B4332] rounded-lg flex items-center justify-center">
-                        <Home className="w-4 h-4 text-white" strokeWidth={2.5} />
-                    </div>
-                    <span className="text-lg font-bold" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", serif)' }}>
-                        Awaas<span className="text-[#E07B39]">Direct</span>
-                    </span>
+                    <Image
+                        src="/website_logo.png"
+                        alt="My Awaas"
+                        width={120}
+                        height={36}
+                        className="object-contain h-9 w-auto"
+                        priority
+                    />
                 </Link>
 
                 {/* Desktop Nav */}
@@ -38,7 +41,6 @@ export function Navbar() {
                         { label: 'Buy', href: '/properties?transactionType=SALE' },
                         { label: 'Rent', href: '/properties?transactionType=RENT' },
                         { label: 'Properties', href: '/properties' },
-                        { label: '✨ AI Planner', href: '/ai-planner' },
                     ].map(({ label, href }) => (
                         <Link key={label} href={href}
                             className="text-sm font-medium text-gray-600 hover:text-[#1B4332] transition-colors">
@@ -95,16 +97,35 @@ export function Navbar() {
                     {[
                         { label: 'Buy', href: '/properties?transactionType=SALE' },
                         { label: 'Rent', href: '/properties?transactionType=RENT' },
-                        { label: 'AI Planner', href: '/ai-planner' },
                         { label: 'Properties', href: '/properties' },
                     ].map(({ label, href }) => (
                         <Link key={label} href={href} className="text-sm font-medium text-gray-700"
                             onClick={() => setMobileOpen(false)}>{label}</Link>
                     ))}
-                    <Link href="/login"
-                        className="bg-[#1B4332] text-white text-center py-2.5 rounded-xl font-semibold text-sm">
-                        Sign In
-                    </Link>
+                    {isAuthenticated && user?.role === 'OWNER' && (
+                        <Link href="/dashboard" className="text-sm font-medium text-gray-700"
+                            onClick={() => setMobileOpen(false)}>Dashboard</Link>
+                    )}
+                    {isAuthenticated ? (
+                        <button
+                            onClick={() => { logout(); setMobileOpen(false); window.location.href = '/'; }}
+                            className="bg-gray-100 text-gray-700 text-center py-2.5 rounded-xl font-semibold text-sm">
+                            Log out
+                        </button>
+                    ) : (
+                        <>
+                            <Link href="/dashboard/list-property"
+                                className="border-2 border-[#1B4332] text-[#1B4332] text-center py-2.5 rounded-xl font-semibold text-sm"
+                                onClick={() => setMobileOpen(false)}>
+                                List Property Free
+                            </Link>
+                            <Link href="/login"
+                                className="bg-[#1B4332] text-white text-center py-2.5 rounded-xl font-semibold text-sm"
+                                onClick={() => setMobileOpen(false)}>
+                                Sign In
+                            </Link>
+                        </>
+                    )}
                 </div>
             )}
         </nav>

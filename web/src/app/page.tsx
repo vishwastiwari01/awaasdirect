@@ -10,8 +10,8 @@ import { HowItWorks } from '@/components/home/HowItWorks';
 import { CTASection } from '@/components/home/CTASection';
 
 export const metadata: Metadata = {
-    title: 'AwaasDirect — India\'s Direct Housing Marketplace',
-    description: 'Buy or rent verified properties directly from owners. No brokers. No commissions. AI-powered virtual tours and floor plans.',
+    title: 'My Awaas — Find Homes to Buy & Rent in India',
+    description: 'Search verified properties for rent and sale across India. Connect directly with owners. Zero broker fees on My Awaas.',
 };
 
 export default function HomePage() {

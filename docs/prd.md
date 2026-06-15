@@ -1,91 +1,112 @@
-# Product Requirements Document
+# Product Requirements Document (PRD)
+# My Awaas — India's Direct Property Marketplace
 
-## Product Name
-**AwaasDirect** — India's first AI-powered, broker-free real estate platform
-
-## One-Line Description
-AwaasDirect connects verified property owners directly with verified buyers and renters in India, eliminating broker fees using AI-powered tools including virtual 3D tours, AI floor plan generation, and direct in-app chat.
-
----
-
-## Problem Statement
-
-Finding a home in India — whether to buy or rent — almost always requires going through a broker who charges 1–2 months' rent (rental) or 1–2% of property value (sale) as commission. There is no trusted, scalable, AI-enabled platform that cuts out the middleman and gives buyers/tenants direct access to real, verified property owners.
-
-**Who has this problem?**
-- **Buyers & Renters**: Pay large broker fees, deal with fake/duplicate listings, lack tools to evaluate properties remotely, and have no safe way to verify ownership.
-- **Property Owners**: Pay listing fees or commissions to brokers, lack analytics on listing views, and have no way to screen buyers directly.
+**Version:** 1.0  
+**Date:** June 2026  
+**Status:** MVP Active  
 
 ---
 
-## Target Users
+## 1. Product Overview
 
-| Type | Description |
-|------|-------------|
-| **Primary — Buyers/Renters** | Urban Indians (Tier 1 & Tier 2 cities) looking to buy/rent residential property directly from owners. Age 24–50, smartphone-first, trust-sensitive. |
-| **Primary — Property Owners** | Individual homeowners and plot owners who want to list property for sale/rent without paying broker commission. |
-| **Secondary — NRI Buyers** | Non-Resident Indians looking to buy property remotely; need virtual tours and AI floor plans. |
+**My Awaas** is an Indian real-estate marketplace that connects property **owners** directly with **buyers and renters**, eliminating middlemen (brokers). The platform operates on a zero-commission model and focuses on trust, RERA compliance, and Aadhaar-based verification.
 
----
+### 1.1 Mission
+> "Every Indian deserves to find their home directly — without paying lakhs in brokerage."
 
-## Core Value Proposition
-
-- **Zero broker fees** — owners list free, buyers contact directly
-- **Trust via verification** — Aadhaar KYC for users, RERA number validation for properties
-- **AI tools no competitor offers** — AI-powered 3D virtual tours from photos, AI floor plan generation for plots
-- **Direct chat** — secure in-app messaging between owner & buyer, no third-party middleman
+### 1.2 Target Users
+| Persona | Description |
+|---|---|
+| **Buyer/Renter** | Individuals searching for a home to buy or rent in Indian cities |
+| **Owner** | Property owners wanting to list and sell/rent their homes without brokers |
+| **Admin** | Internal team managing RERA verification and content moderation |
 
 ---
 
-## Success Metrics (MVP — First 90 Days)
+## 2. MVP Scope (v1.0)
 
+### 2.1 In Scope ✅
+- **Authentication:** Phone + Password login & registration (OTP planned for v1.1)
+- **Property Listings:** Create, view, edit, delete listings (OWNER role)
+- **Property Search:** Filter by city, type (Buy/Rent), BHK, price range
+- **Property Detail Page:** Photo gallery, specs, owner contact via chat
+- **Direct Chat:** Buyer ↔ Owner in-app messaging (real-time via Socket.io)
+- **Saved Properties:** Wishlist / bookmarking for buyers
+- **Owner Dashboard:** Manage active listings and view inquiries
+- **Mobile Responsive:** Full functionality on mobile browsers
+- **Security:** Rate limiting, JWT auth, Helmet, CORS, input validation
+
+### 2.2 Out of Scope (Future)
+- OTP / Aadhaar KYC
+- AI Floor Plan Generator
+- 3D Virtual Tours
+- Mobile App (React Native — planned)
+- EMI Calculator
+- Price Trend Analytics
+- Push Notifications
+
+---
+
+## 3. Feature Requirements
+
+### 3.1 Authentication
+- User registers with: Name, Phone (10-digit), Password, Role (BUYER or OWNER)
+- Phone number is hashed (SHA-256) before storage — never stored plain
+- JWT Access Token (15 min) + Refresh Token (7 days)
+- All auth endpoints protected by strict rate limiter (5 req / 15 min per IP)
+- Passwords hashed with bcrypt (10 rounds)
+
+### 3.2 Property Listings
+- Fields: Title, Description, Type (Apartment/Villa/House/Plot/PG/Commercial), Transaction (Sale/Rent), City, Locality, BHK, Sqft, Price, Furnishing, Facing, Available From
+- Up to 10 photos per listing (S3 storage)
+- Status: ACTIVE, UNDER_REVIEW, SOLD, RENTED, DEACTIVATED
+- Full-text search via PostgreSQL tsvector
+
+### 3.3 Search & Filters
+- Transaction Type: Buy / Rent
+- City (text search)
+- Property Type
+- BHK
+- Price range (min / max)
+- Keyword / locality search
+- Sort by: Newest, Price (asc/desc)
+
+### 3.4 Chat
+- One conversation thread per buyer-property pair
+- Real-time messages via Socket.io WebSocket
+- Owner can choose to share phone number in chat
+- Unread message tracking
+
+### 3.5 Security
+- Helmet.js (HTTP security headers)
+- CORS locked to frontend domain only
+- Global rate limit: 100 req / 15 min per IP
+- Auth rate limit: 5 req / 15 min per IP
+- Zod input validation on all API endpoints
+- JWT with strong secrets (32+ characters)
+- SQL injection impossible via Prisma ORM parameterized queries
+
+---
+
+## 4. Success Metrics (MVP)
 | Metric | Target |
-|--------|--------|
-| Property listings (live) | 500+ |
-| Registered & Aadhaar-verified users | 2,000+ |
-| Buyer-to-owner direct chats initiated | 1,000+ |
-| AI virtual tours generated | 300+ |
-| AI floor plans generated for plots | 100+ |
-| RERA-verified property listings | ≥ 60% of all listings |
+|---|---|
+| Properties listed | 50+ in first month |
+| Registered users | 100+ |
+| Daily active users | 20+ |
+| Avg. page load time | < 2 seconds |
+| Uptime | 99%+ |
 
 ---
 
-## Scope — Version 1.0 (MVP)
-
-The MVP focuses on **5 core capabilities**:
-
-1. **Property Listing** — Owners list residential properties (flat/house/plot) for sale or rent with photos, price, location, and RERA number.
-2. **Search & Filter** — Buyers search by city, area, type (buy/rent), BHK, price range, and verified status.
-3. **AI Virtual Tours** — Platform generates a navigable 3D virtual tour from owner-uploaded photos (powered by a third-party AI engine).
-4. **AI Floor Plan Generator** — For vacant plots listed for sale, buyers can generate AI-suggested floor plans based on plot dimensions.
-5. **Direct Chat** — Verified buyers contact verified owners via in-app chat; no phone numbers exposed until both parties consent.
-
-**Verification Gates:**
-- Users: Aadhaar OTP-based KYC (via DigiLocker / Aadhaar API)
-- Properties: RERA registration number field; system performs format validation and links to state RERA portal data where available.
+## 5. Platforms
+- **Web:** Next.js 14 (Vercel) — primary
+- **Mobile App:** Planned (React Native — v2.0)
 
 ---
 
-## Out of Scope (v1)
-
-- Payment/escrow or token booking through the platform
-- Legal document upload, e-stamping, or sale agreement generation
-- Loan / home finance integration
-- Agent/broker accounts (no broker onboarding in MVP)
-- Commercial property listings
-- Ratings and reviews for owners
-- Mobile native app (iOS/Android) — web-first MVP
-- Multilingual UI (English-first, Hindi v1.1)
-- Push notification system
-- AI property price prediction / valuation
-
----
-
-## Constraints & Assumptions
-
-- Aadhaar API access requires UIDAI sandbox / approved partner — use DigiLocker API for MVP pilot.
-- RERA data availability varies by state; MVP validates RERA number format only; full API integration deferred.
-- AI virtual tour generation uses a third-party service (e.g., Matterport API, Kuula, or open-source NeRF pipeline).
-- AI floor plan generation uses a generative AI model (e.g., GPT-4o with structured prompts, or a fine-tuned architecture model).
-- Platform language: English only for MVP.
-- Hosting target: India region (AWS Mumbai / GCP Mumbai) for data residency.
+## 6. Non-Functional Requirements
+- GDPR/DPDP Act compliant (no plain personal data stored)
+- RERA badge displayed on verified properties
+- Zero broker commission model
+- All passwords and phones hashed at rest

@@ -6,6 +6,7 @@ import compression from 'compression';
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { sendError } from './utils/response';
+import { generalLimiter } from './middleware/rateLimiter';
 
 // ─── Route Imports ────────────────────────────────────────────
 import authRoutes from './routes/auth.routes';
@@ -19,6 +20,7 @@ const app = express();
 
 // ─── Security & Parsing Middleware ────────────────────────────
 app.use(helmet());
+app.use(generalLimiter);   // Global: 100 req / 15 min (DoS protection)
 app.use(cors({
     origin: env.FRONTEND_URL,
     credentials: true,
