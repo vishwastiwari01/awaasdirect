@@ -15,6 +15,7 @@ const envSchema = z.object({
     JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 chars'),
     JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
     JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+    SUPABASE_JWT_SECRET: z.string().min(32),
 
     AWS_REGION: z.string().default('ap-south-1'),
     AWS_ACCESS_KEY_ID: z.string().min(1),
