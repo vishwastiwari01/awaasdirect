@@ -4,8 +4,9 @@ services:
     env: node
     plan: free
     region: singapore
-    buildCommand: "cd api && npm install --include=dev && npx prisma generate && npm run build"
-    startCommand: "cd api && npm start"
+    rootDir: api
+    buildCommand: "npm install --include=dev && npx prisma generate && npm run build"
+    startCommand: "npm start"
     envVars:
       - key: NODE_ENV
         value: production
