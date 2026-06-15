@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Playfair_Display, DM_Sans } from 'next/font/google';
+import { Playfair_Display, Inter } from 'next/font/google';
 import { QueryProvider } from '@/lib/query-provider';
 import './globals.css';
 
@@ -9,9 +9,9 @@ const playfair = Playfair_Display({
     display: 'swap',
 });
 
-const dmSans = DM_Sans({
+const inter = Inter({
     subsets: ['latin'],
-    variable: '--font-dm-sans',
+    variable: '--font-inter',
     display: 'swap',
 });
 
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
+        <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
             <body className="font-sans">
                 <QueryProvider>{children}</QueryProvider>
             </body>

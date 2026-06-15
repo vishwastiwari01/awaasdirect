@@ -30,10 +30,10 @@ export function initials(name: string): string {
 export const CITIES = ['Bangalore', 'Hyderabad', 'Mumbai', 'Delhi', 'Chennai', 'Pune', 'Kolkata', 'Ahmedabad'];
 
 export const PROPERTY_TYPES = [
-    { value: 'APARTMENT', label: 'Apartment', emoji: '🏢' },
-    { value: 'VILLA', label: 'Villa', emoji: '🏡' },
-    { value: 'INDEPENDENT_HOUSE', label: 'Independent House', emoji: '🏠' },
-    { value: 'PLOT', label: 'Plot', emoji: '🏗️' },
-    { value: 'COMMERCIAL', label: 'Commercial', emoji: '🏬' },
-    { value: 'PG', label: 'PG / Hostel', emoji: '🛏️' },
+    { value: 'APARTMENT', label: 'Apartment' },
+    { value: 'VILLA', label: 'Villa' },
+    { value: 'INDEPENDENT_HOUSE', label: 'Independent House' },
+    { value: 'PLOT', label: 'Plot' },
+    { value: 'COMMERCIAL', label: 'Commercial' },
+    { value: 'PG', label: 'PG / Hostel' },
 ];

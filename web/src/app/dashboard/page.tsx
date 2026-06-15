@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { BarChart3, Home, MessageSquare, Eye, Plus, Settings, ShieldCheck } from 'lucide-react';
+import { BarChart3, Home, MessageSquare, Eye, Plus, Settings, ShieldCheck, Building2 } from 'lucide-react';
 import apiClient from '@/lib/api-client';
 import { useAuthStore } from '@/store/authStore';
 import { formatPrice } from '@/lib/utils';
@@ -97,7 +97,7 @@ export default function DashboardPage() {
                                 return (
                                     <div key={p.id as string} style={{ background: 'white', borderRadius: 16, border: '1.5px solid var(--border)', overflow: 'hidden' }}>
                                         <div style={{ height: 140, background: IMG_GRADIENTS[i % IMG_GRADIENTS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, position: 'relative' }}>
-                                            🏠
+                                            <Building2 size={48} color="rgba(255,255,255,0.8)" />
                                             <span style={{ position: 'absolute', top: 10, left: 10, background: p.status === 'ACTIVE' ? 'var(--forest)' : '#6B6B6B', color: 'white', fontSize: 10, fontFamily: '"DM Mono",monospace', padding: '3px 8px', borderRadius: 5 }}>
                                                 {p.status as string}
                                             </span>
@@ -122,7 +122,7 @@ export default function DashboardPage() {
                         </div>
                     ) : (
                         <div style={{ textAlign: 'center', padding: '64px 0' }}>
-                            <div style={{ fontSize: 56, marginBottom: 16 }}>🏠</div>
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16, color: 'var(--muted)' }}><Building2 size={56} /></div>
                             <h3 style={{ fontFamily: '"Playfair Display",serif', fontSize: 24, marginBottom: 8 }}>No listings yet</h3>
                             <p style={{ color: 'var(--muted)', marginBottom: 24 }}>Add your first property and connect with thousands of buyers.</p>
                             <Link href="/dashboard/list-property">

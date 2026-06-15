@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { Trash2, MapPin, Square, BedDouble } from 'lucide-react';
+import { Trash2, MapPin, Square, BedDouble, Building2, Heart, Search } from 'lucide-react';
 import apiClient from '@/lib/api-client';
 import { useAuthStore } from '@/store/authStore';
 import { formatPrice, formatArea } from '@/lib/utils';
@@ -57,7 +57,7 @@ export default function SavedPage() {
                                     <div key={item.id as string} className="property-card">
                                         {/* Image */}
                                         <div style={{ height: 180, background: IMG_GRADIENTS[i % IMG_GRADIENTS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 56, position: 'relative' }}>
-                                            🏠
+                                            <Building2 size={56} color="rgba(255,255,255,0.8)" />
                                             <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', gap: 6 }}>
                                                 {verif?.reraStatus === 'VERIFIED' && <span style={{ background: 'var(--forest)', color: 'white', fontSize: 9, fontFamily: '"DM Mono",monospace', fontWeight: 700, padding: '2px 7px', borderRadius: 5, letterSpacing: '0.04em' }}>RERA ✓</span>}
                                             </div>
@@ -87,10 +87,10 @@ export default function SavedPage() {
                         </div>
                     ) : (
                         <div style={{ textAlign: 'center', padding: '80px 0' }}>
-                            <div style={{ fontSize: 60, marginBottom: 16 }}>❤️</div>
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}><Heart size={60} color="#FCA5A5" /></div>
                             <h3 style={{ fontFamily: '"Playfair Display",serif', fontSize: 26, marginBottom: 8 }}>No saved properties</h3>
                             <p style={{ color: 'var(--muted)', marginBottom: 24 }}>Tap the heart on any listing to save it here.</p>
-                            <Link href="/properties"><button className="btn-primary" style={{ padding: '12px 28px' }}>🔍 Browse Properties</button></Link>
+                            <Link href="/properties"><button className="btn-primary" style={{ padding: '12px 28px', display: 'flex', alignItems: 'center', gap: 8, margin: '0 auto' }}><Search size={16} /> Browse Properties</button></Link>
                         </div>
                     )}
                 </div>

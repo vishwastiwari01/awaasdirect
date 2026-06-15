@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { SlidersHorizontal, Grid3X3, List, Search } from 'lucide-react';
+import { SlidersHorizontal, Grid3X3, List, Search, Building2 } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -184,7 +184,7 @@ export default function PropertiesPage() {
 
                         {filtered.length === 0 && (
                             <div className="text-center py-20 text-gray-400">
-                                <p className="text-4xl mb-4">🏠</p>
+                                <div className="flex justify-center mb-4 text-gray-300"><Building2 size={48} /></div>
                                 <p className="text-lg font-semibold text-gray-600">No properties found</p>
                                 <p className="text-sm mt-1">Try adjusting your filters</p>
                             </div>

@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { Send } from 'lucide-react';
+import { Send, MessageSquare, Building2 } from 'lucide-react';
 import apiClient from '@/lib/api-client';
 import { useAuthStore } from '@/store/authStore';
 import { timeAgo } from '@/lib/utils';
@@ -75,7 +75,7 @@ export default function MessagesPage() {
                     })}
                     {!convos?.length && (
                         <div style={{ textAlign: 'center', padding: '60px 24px', color: 'var(--muted)' }}>
-                            <div style={{ fontSize: 40, marginBottom: 12 }}>💬</div>
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}><MessageSquare size={40} /></div>
                             <p style={{ fontSize: 14 }}>No conversations yet.<br />Start by chatting with an owner.</p>
                         </div>
                     )}
@@ -88,7 +88,7 @@ export default function MessagesPage() {
                             {/* Header */}
                             <div style={{ background: 'var(--forest)', color: 'white', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: 14 }}>
                                 <div style={{ width: 40, height: 40, background: 'var(--forest-light)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
-                                    {isOwner ? (buyer?.name?.[0] ?? 'B') : '🏠'}
+                                    {isOwner ? (buyer?.name?.[0] ?? 'B') : <Building2 size={20} />}
                                 </div>
                                 <div>
                                     <div style={{ fontSize: 15, fontWeight: 600 }}>{isOwner ? buyer?.name : 'Property Owner'}</div>
@@ -139,7 +139,7 @@ export default function MessagesPage() {
                         </>
                     ) : (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 16, color: 'var(--muted)' }}>
-                            <div style={{ fontSize: 60 }}>💬</div>
+                            <MessageSquare size={60} />
                             <h3 style={{ fontFamily: '"Playfair Display",serif', fontSize: 22 }}>Select a conversation</h3>
                         </div>
                     )}

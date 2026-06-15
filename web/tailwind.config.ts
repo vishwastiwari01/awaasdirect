@@ -9,6 +9,15 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
+                navy: '#0F172A',
+                gold: '#D4AF37',
+                emerald: '#10B981',
+                'emerald-dark': '#059669',
+                surface: '#FFFFFF',
+                'bg-light': '#FAFAF8',
+                'text-main': '#111827',
+                'text-muted': '#6B7280',
+                // Keep old ones for backward compatibility temporarily during migration
                 forest: '#1B4332',
                 'forest-mid': '#2D6A4F',
                 'forest-light': '#52B788',
@@ -25,7 +34,7 @@ const config: Config = {
                 border: '#E8E0D5',
             },
             fontFamily: {
-                sans: ['var(--font-dm-sans)', 'DM Sans', 'system-ui', 'sans-serif'],
+                sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
                 playfair: ['var(--font-playfair)', 'Playfair Display', 'Georgia', 'serif'],
                 serif: ['var(--font-playfair)', 'Playfair Display', 'Georgia', 'serif'],
                 mono: ['"DM Mono"', 'monospace'],
@@ -33,8 +42,8 @@ const config: Config = {
             boxShadow: {
                 card: '0 4px 32px rgba(0,0,0,0.08)',
                 'card-hover': '0 16px 48px rgba(0,0,0,0.14)',
-                amber: '0 8px 24px rgba(224,123,57,0.3)',
-                forest: '0 8px 24px rgba(27,67,50,0.4)',
+                gold: '0 8px 24px rgba(212, 175, 55, 0.3)',
+                emerald: '0 8px 24px rgba(16, 185, 129, 0.4)',
             },
             animation: {
                 float: 'float 6s ease-in-out infinite',

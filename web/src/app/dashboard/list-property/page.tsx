@@ -28,7 +28,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const FURNISHING_OPTS = ['UNFURNISHED', 'SEMI_FURNISHED', 'FULLY_FURNISHED'];
-const TX_TYPES = [{ value: 'SALE', label: '🏠 For Sale' }, { value: 'RENT', label: '🔑 For Rent' }];
+const TX_TYPES = [{ value: 'SALE', label: 'For Sale' }, { value: 'RENT', label: 'For Rent' }];
 
 export default function ListPropertyPage() {
     const router = useRouter();
@@ -74,7 +74,7 @@ export default function ListPropertyPage() {
 
                     {success && (
                         <div style={{ background: '#D8F3DC', border: '1px solid #95D5B2', borderRadius: 12, padding: '16px 20px', color: 'var(--forest)', fontSize: 15, fontWeight: 600, marginBottom: 24, textAlign: 'center' }}>
-                            ✅ Listing created successfully! Redirecting to dashboard…
+                            Listing created successfully! Redirecting to dashboard…
                         </div>
                     )}
                     {error && (
@@ -97,7 +97,7 @@ export default function ListPropertyPage() {
                                     <div>
                                         <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 6 }}>Property Type</label>
                                         <select {...register('type')} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--border)', borderRadius: 10, fontFamily: '"DM Sans",sans-serif', fontSize: 14, background: 'var(--warm-white)', outline: 'none' }}>
-                                            {PROPERTY_TYPES.map(t => <option key={t.value} value={t.value}>{t.emoji} {t.label}</option>)}
+                                            {PROPERTY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                                         </select>
                                     </div>
                                     <div>
@@ -162,7 +162,7 @@ export default function ListPropertyPage() {
 
                         <button type="submit" className="btn-primary" disabled={isSubmitting}
                             style={{ width: '100%', padding: '16px', justifyContent: 'center', fontSize: 16, borderRadius: 12, boxShadow: '0 4px 16px rgba(27,67,50,0.25)' }}>
-                            {isSubmitting ? 'Publishing…' : '🚀 Publish Listing — Free'}
+                            {isSubmitting ? 'Publishing…' : 'Publish Listing — Free'}
                         </button>
                     </form>
                 </div>

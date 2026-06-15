@@ -10,12 +10,12 @@ export function BrandLogo({ className = '', iconOnly = false, dark = false }: Br
     return (
         <div className={`flex items-center gap-2.5 hover:opacity-90 transition-opacity duration-300 ${className}`}>
             {/* Logo Icon */}
-            <div className="relative flex items-center justify-center shrink-0 w-11 h-11">
+            <div className="relative flex items-center justify-center shrink-0 w-12 h-12">
                 <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
                     {/* Outer House Roof */}
                     <path
                         d="M5 28L24 7L43 28"
-                        stroke="#38B889"
+                        stroke="#10B981"
                         strokeWidth="5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -23,7 +23,7 @@ export function BrandLogo({ className = '', iconOnly = false, dark = false }: Br
                     {/* Inner Hidden 'M' */}
                     <path
                         d="M13 35V20L24 31L35 20V35"
-                        stroke="#D6A75D"
+                        stroke="#D4AF37"
                         strokeWidth="5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -37,11 +37,11 @@ export function BrandLogo({ className = '', iconOnly = false, dark = false }: Br
                     className="font-bold tracking-tight leading-none mb-0.5"
                     style={{
                         fontFamily: 'var(--font-playfair, "Playfair Display", serif)',
-                        fontSize: '28px',
+                        fontSize: '32px',
                     }}
                 >
-                    <span className={dark ? "text-gray-900" : "text-[#F8F8F8]"}>My</span>
-                    <span className="text-[#D6A75D]">Awaas</span>
+                    <span className={dark ? "text-navy" : "text-surface"}>My</span>
+                    <span className="text-gold">Awaas</span>
                 </div>
             )}
         </div>
