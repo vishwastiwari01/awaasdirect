@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate';
 import { authenticate } from '../middleware/authenticate';
-import { authLimiter } from '../middleware/rateLimiter';
+import { registerLimiter, loginLimiter } from '../middleware/rateLimiter';
 import * as AuthController from '../controllers/auth.controller';
 import {
     RegisterSchema,
@@ -35,7 +35,7 @@ const router = Router();
  *       409: { description: Phone or email already registered }
  *       422: { description: Validation error }
  */
-router.post('/register', authLimiter, validate(RegisterSchema), AuthController.register);
+router.post('/register', registerLimiter, validate(RegisterSchema), AuthController.register);
 
 /**
  * @swagger
@@ -57,7 +57,7 @@ router.post('/register', authLimiter, validate(RegisterSchema), AuthController.r
  *       200: { description: Login successful, returns tokens }
  *       401: { description: Invalid credentials }
  */
-router.post('/login', authLimiter, validate(LoginSchema), AuthController.login);
+router.post('/login', loginLimiter, validate(LoginSchema), AuthController.login);
 
 /**
  * @swagger

@@ -94,3 +94,12 @@ export const requireOwner = (req: Request, res: Response, next: NextFunction): v
     }
     next();
 };
+
+/** Gate: user must be an ADMIN */
+export const requireAdmin = (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user || req.user.role !== 'ADMIN') {
+        sendError(res, 'Admin account required', 403, 'FORBIDDEN');
+        return;
+    }
+    next();
+};

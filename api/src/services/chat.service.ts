@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../config/database';
 import { logger } from '../utils/logger';
+import { sanitizeText } from '../utils/sanitize';
 
 // ─── Zod Schemas ─────────────────────────────────────────────
 
@@ -95,8 +96,10 @@ export const sendMessage = async (
         conversation.buyerId === senderId || conversation.property.ownerId === senderId;
     if (!isParticipant) throw Object.assign(new Error('Forbidden'), { status: 403 });
 
+    const sanitizedContent = sanitizeText(content) || '';
+
     const message = await prisma.message.create({
-        data: { conversationId, senderId, content },
+        data: { conversationId, senderId, content: sanitizedContent },
         include: {
             sender: { select: { id: true, name: true, image: true } },
         },

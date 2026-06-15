@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate';
 import { authenticate } from '../middleware/authenticate';
-import { generalLimiter } from '../middleware/rateLimiter';
+import { generalLimiter, chatLimiter } from '../middleware/rateLimiter';
 import * as ChatController from '../controllers/chat.controller';
 import { SendMessageSchema } from '../services/chat.service';
 
@@ -30,8 +30,9 @@ router.use(authenticate);
  *     responses:
  *       201: { description: Message sent }
  *       403: { description: Not a participant in this conversation }
+ *       429: { description: Sending messages too fast }
  */
-router.post('/', validate(SendMessageSchema), ChatController.sendMessage);
+router.post('/', chatLimiter, validate(SendMessageSchema), ChatController.sendMessage);
 
 /**
  * @swagger

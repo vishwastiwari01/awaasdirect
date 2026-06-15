@@ -32,3 +32,14 @@ export const myListings = asyncHandler(async (req: Request, res: Response) => {
     const properties = await ListingService.getMyProperties(req.user!.id);
     sendSuccess(res, properties);
 });
+
+export const uploadPhotos = asyncHandler(async (req: Request, res: Response) => {
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return sendError(res, 'No files uploaded', 400, 'BAD_REQUEST');
+    }
+    const propertyId = req.params.id;
+    const ownerId = req.user!.id;
+    // Pass the files to the service (which uploads to S3 and saves to DB)
+    const photos = await ListingService.uploadPropertyPhotos(propertyId, ownerId, req.files as Express.Multer.File[]);
+    sendCreated(res, photos, 'Photos uploaded successfully');
+});

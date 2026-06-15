@@ -2,6 +2,10 @@ import { z } from 'zod';
 import { Prisma, PropertyType, TransactionType, FurnishingStatus, PropertyStatus } from '@prisma/client';
 import prisma from '../config/database';
 import { logger } from '../utils/logger';
+import { sanitizeText } from '../utils/sanitize';
+import { s3Client, S3_BUCKET } from '../config/s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import crypto from 'crypto';
 
 // ─── Zod Schemas ─────────────────────────────────────────────
 
@@ -157,6 +161,7 @@ export const createProperty = async (
     const property = await prisma.property.create({
         data: {
             ...(propertyData as any),
+            description: sanitizeText(propertyData.description),
             availableFrom: availableFrom ? new Date(availableFrom) : undefined,
             owner: { connect: { id: ownerId } },
             ...(reraNumber
@@ -198,6 +203,7 @@ export const updateProperty = async (
         where: { id },
         data: {
             ...(propertyData as any),
+            ...(propertyData.description ? { description: sanitizeText(propertyData.description) } : {}),
             ...(availableFrom ? { availableFrom: new Date(availableFrom) } : {}),
         },
         include: { photos: true, verification: true },
@@ -232,4 +238,47 @@ export const getMyProperties = async (ownerId: string): Promise<object[]> => {
             _count: { select: { conversations: true } },
         },
     });
+};
+
+export const uploadPropertyPhotos = async (
+    propertyId: string,
+    ownerId: string,
+    files: Express.Multer.File[]
+): Promise<object[]> => {
+    // 1. Verify ownership
+    const existing = await prisma.property.findFirst({
+        where: { id: propertyId, deletedAt: null },
+    });
+    if (!existing) throw Object.assign(new Error('Property not found'), { status: 404 });
+    if (existing.ownerId !== ownerId) throw Object.assign(new Error('Forbidden'), { status: 403 });
+
+    // 2. Upload each file to S3 and save URL to DB
+    const uploadedPhotos = [];
+    for (const file of files) {
+        const fileExt = file.mimetype.split('/')[1];
+        const key = `properties/${propertyId}/${crypto.randomBytes(16).toString('hex')}.${fileExt}`;
+
+        await s3Client.send(
+            new PutObjectCommand({
+                Bucket: S3_BUCKET,
+                Key: key,
+                Body: file.buffer,
+                ContentType: file.mimetype,
+            })
+        );
+
+        const url = `https://${S3_BUCKET}.s3.amazonaws.com/${key}`;
+
+        const photo = await prisma.propertyPhoto.create({
+            data: {
+                propertyId,
+                url,
+                isCover: uploadedPhotos.length === 0, // First photo is cover if not existing
+            },
+        });
+        uploadedPhotos.push(photo);
+    }
+
+    logger.info('Photos uploaded', { propertyId, count: uploadedPhotos.length });
+    return uploadedPhotos;
 };

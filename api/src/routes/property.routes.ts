@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate';
 import { authenticate, requireVerified, requireOwner } from '../middleware/authenticate';
-import { generalLimiter } from '../middleware/rateLimiter';
+import { generalLimiter, propertyLimiter } from '../middleware/rateLimiter';
 import * as PropertyController from '../controllers/property.controller';
 import {
     CreatePropertySchema,
@@ -101,6 +101,7 @@ router.post(
     authenticate,
     requireVerified,
     requireOwner,
+    propertyLimiter,
     validate(CreatePropertySchema),
     PropertyController.create
 );
@@ -132,5 +133,25 @@ router.patch(
  *       - bearerAuth: []
  */
 router.delete('/:id', authenticate, PropertyController.remove);
+
+import { upload, handleUploadError } from '../middleware/upload';
+
+/**
+ * @swagger
+ * /api/properties/{id}/photos:
+ *   post:
+ *     summary: Upload photos for a property (owner only)
+ *     tags: [Properties]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post(
+    '/:id/photos',
+    authenticate,
+    requireOwner,
+    upload.array('photos', 10), // max 10 photos
+    handleUploadError,
+    PropertyController.uploadPhotos
+);
 
 export default router;

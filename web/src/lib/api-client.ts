@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { createClient } from './supabase/client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
@@ -8,16 +9,31 @@ export const apiClient = axios.create({
     timeout: 15_000,
 });
 
-// Attach JWT token from localStorage on every request
-apiClient.interceptors.request.use((config) => {
+// Attach the Supabase access token on every request
+apiClient.interceptors.request.use(async (config) => {
     if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('accessToken');
-        if (token) config.headers.Authorization = `Bearer ${token}`;
+        // First try localStorage (fastest, set by authStore)
+        const cached = localStorage.getItem('accessToken');
+        if (cached) {
+            config.headers.Authorization = `Bearer ${cached}`;
+            return config;
+        }
+        // Fallback: get fresh token from Supabase
+        try {
+            const supabase = createClient();
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.access_token) {
+                localStorage.setItem('accessToken', session.access_token);
+                config.headers.Authorization = `Bearer ${session.access_token}`;
+            }
+        } catch {
+            // No session — request will proceed unauthenticated
+        }
     }
     return config;
 });
 
-// Auto-refresh on 401
+// On 401: refresh Supabase session and retry once
 apiClient.interceptors.response.use(
     (res) => res,
     async (error) => {
@@ -25,20 +41,20 @@ apiClient.interceptors.response.use(
         if (error.response?.status === 401 && !original._retry) {
             original._retry = true;
             try {
-                const refreshToken = localStorage.getItem('refreshToken');
-                if (refreshToken) {
-                    const { data } = await axios.post(`${API_URL}/api/auth/refresh`, { refreshToken });
-                    const newToken = data.data.tokens.accessToken;
-                    localStorage.setItem('accessToken', newToken);
-                    original.headers.Authorization = `Bearer ${newToken}`;
+                const supabase = createClient();
+                const { data: { session } } = await supabase.auth.refreshSession();
+                if (session?.access_token) {
+                    localStorage.setItem('accessToken', session.access_token);
+                    original.headers.Authorization = `Bearer ${session.access_token}`;
                     return apiClient(original);
                 }
             } catch {
-                if (typeof window !== 'undefined') {
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
-                    window.location.href = '/login';
-                }
+                // Refresh failed — sign out
+            }
+            // No valid session → redirect to login
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('accessToken');
+                window.location.href = '/login';
             }
         }
         return Promise.reject(error);
