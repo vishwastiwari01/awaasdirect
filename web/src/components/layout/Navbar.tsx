@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 
 export function Navbar() {
     const [scrolled, setScrolled] = useState(false);
@@ -26,14 +27,7 @@ export function Navbar() {
 
                 {/* Logo */}
                 <Link href="/" className="flex items-center shrink-0">
-                    <Image
-                        src="/website_logo.png"
-                        alt="My Awaas"
-                        width={200}
-                        height={60}
-                        className="object-contain h-14 w-auto mix-blend-screen opacity-90 hover:opacity-100 transition-opacity"
-                        priority
-                    />
+                    <BrandLogo />
                 </Link>
 
                 {/* Desktop Nav Links — centered */}

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 import { signInWithGoogle } from '@/lib/supabase/client';
 import { createClient } from '@/lib/supabase/client';
 import { useAuthStore } from '@/store/authStore';
@@ -61,8 +62,7 @@ export default function LoginPage() {
 
                 {/* Logo */}
                 <Link href="/" className="relative z-10">
-                    <Image src="/website_logo.png" alt="My Awaas" width={140} height={42}
-                        className="object-contain brightness-0 invert opacity-90" priority />
+                    <BrandLogo dark />
                 </Link>
 
                 {/* Middle content */}
@@ -105,8 +105,7 @@ export default function LoginPage() {
                     {/* Mobile logo */}
                     <div className="flex justify-center mb-8 lg:hidden">
                         <Link href="/">
-                            <Image src="/website_logo.png" alt="My Awaas" width={130} height={40}
-                                className="object-contain" priority />
+                            <BrandLogo />
                         </Link>
                     </div>
 
