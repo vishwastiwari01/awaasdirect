@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Home, Eye, EyeOff, Search, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Search, CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import apiClient from '@/lib/api-client';
@@ -45,13 +46,15 @@ export default function RegisterPage() {
             {/* ── Left panel ── */}
             <div className="hidden lg:flex lg:w-5/12 flex-col justify-between p-12"
                 style={{ background: 'linear-gradient(160deg, #0D2818 0%, #1B4332 50%, #2D6A4F 100%)' }}>
-                <Link href="/" className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                        <Home className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-white font-bold text-lg" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", serif)' }}>
-                        Awaas<span className="text-[#F4A261]">Direct</span>
-                    </span>
+                <Link href="/" className="flex items-center">
+                    <Image
+                        src="/website_logo.png"
+                        alt="My Awaas"
+                        width={140}
+                        height={40}
+                        className="object-contain brightness-0 invert"
+                        priority
+                    />
                 </Link>
 
                 <div>

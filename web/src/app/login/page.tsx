@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
+import Image from 'next/image';
 import apiClient from '@/lib/api-client';
 import { useAuthStore } from '@/store/authStore';
 
@@ -38,12 +39,17 @@ export default function LoginPage() {
             <div style={{ width: '100%', maxWidth: 440 }}>
                 {/* Logo */}
                 <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                    <Link href="/" style={{ textDecoration: 'none' }}>
-                        <div style={{ fontFamily: '"Playfair Display",serif', fontSize: 28, fontWeight: 700, color: 'var(--forest)' }}>
-                            🏠 Awaas<span style={{ color: 'var(--amber)' }}>Direct</span>
-                        </div>
+                    <Link href="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
+                        <Image
+                            src="/website_logo.png"
+                            alt="My Awaas"
+                            width={150}
+                            height={44}
+                            className="object-contain mx-auto"
+                            priority
+                        />
                     </Link>
-                    <p style={{ fontSize: 14, color: 'var(--muted)', marginTop: 8 }}>Sign in to your account</p>
+                    <p style={{ fontSize: 14, color: 'var(--muted)', marginTop: 10 }}>Sign in to your account</p>
                 </div>
 
                 {/* Card */}
