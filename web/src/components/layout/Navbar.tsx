@@ -39,9 +39,9 @@ export function Navbar() {
                 {/* Desktop Nav Links — centered */}
                 <div className="hidden md:flex items-center gap-1">
                     {[
-                        { label: 'Buy', href: '/properties?transactionType=SALE', icon: Home },
-                        { label: 'Rent', href: '/properties?transactionType=RENT', icon: Building2 },
-                        { label: 'All Properties', href: '/properties', icon: null },
+                        { label: 'Buy', href: '/properties?transactionType=SALE' },
+                        { label: 'Rent', href: '/properties?transactionType=RENT' },
+                        { label: 'All Properties', href: '/properties' },
                     ].map(({ label, href }) => (
                         <Link
                             key={label}
