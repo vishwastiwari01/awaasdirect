@@ -53,9 +53,7 @@
         "typescript": "^5.5.3",
         "uuid": "^10.0.0",
         "winston": "^3.13.0",
-        "zod": "^3.23.8"
-    },
-    "devDependencies": {
+        "zod": "^3.23.8",
         "@types/jsdom": "^28.0.3",
         "@types/multer": "^2.1.0"
     }
