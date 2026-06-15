@@ -21,10 +21,8 @@ export function CategoriesSection() {
                         Every Kind of Home,<br className="hidden md:block" />One Platform
                     </h2>
                 </div>
-                <Link href="/properties" className="no-underline">
-                    <button className="px-5 py-2.5 text-sm font-semibold rounded-full border border-gray-200 hover:border-[#1B4332] hover:bg-gray-50 transition-colors">
-                        View All &rarr;
-                    </button>
+                <Link href="/properties" className="px-5 py-2.5 text-sm font-semibold rounded-full border border-gray-200 hover:border-[#1B4332] hover:bg-gray-50 transition-colors no-underline inline-block text-gray-900">
+                    View All &rarr;
                 </Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

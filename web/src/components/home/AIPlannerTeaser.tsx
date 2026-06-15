@@ -81,10 +81,8 @@ export function AIPlannerTeaser() {
                         </div>
                     </div>
 
-                    <Link href={`/ai-planner?length=${len}&width=${wid}&floors=${floors}&style=${style}`}>
-                        <button className="w-full p-3.5 border-none rounded-xl cursor-pointer bg-gradient-to-br from-[#1B4332] to-[#2D6A4F] text-white font-sans text-[15px] font-bold flex items-center justify-center gap-2.5 transition-all mb-4 shadow-[0_4px_16px_rgba(27,67,50,0.4)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(82,183,136,0.3)]">
-                            <Sparkles size={16} /> Generate Floor Plan
-                        </button>
+                    <Link href={`/ai-planner?length=${len}&width=${wid}&floors=${floors}&style=${style}`} className="w-full p-3.5 border-none rounded-xl cursor-pointer bg-gradient-to-br from-[#1B4332] to-[#2D6A4F] text-white font-sans text-[15px] font-bold flex items-center justify-center gap-2.5 transition-all mb-4 shadow-[0_4px_16px_rgba(27,67,50,0.4)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(82,183,136,0.3)] no-underline">
+                        <Sparkles size={16} /> Generate Floor Plan
                     </Link>
 
                     {/* Room preview */}

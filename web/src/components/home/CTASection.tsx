@@ -16,15 +16,11 @@ export function CTASection() {
                     Join 18,000+ verified owners and buyers who chose zero brokerage.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link href="/properties" className="w-full sm:w-auto">
-                        <button className="w-full sm:w-auto bg-white text-[#1B4332] hover:bg-gray-100 px-8 py-3.5 rounded-full font-semibold text-[15px] transition-colors shadow-lg">
-                            🔍 Browse Listings
-                        </button>
+                    <Link href="/properties" className="w-full sm:w-auto bg-white text-[#1B4332] hover:bg-gray-100 px-8 py-3.5 rounded-full font-semibold text-[15px] transition-colors shadow-lg flex items-center justify-center gap-2">
+                        🔍 Browse Listings
                     </Link>
-                    <Link href="/register" className="w-full sm:w-auto">
-                        <button className="w-full sm:w-auto bg-transparent text-white border border-white/30 hover:bg-white/10 px-8 py-3.5 rounded-full font-semibold text-[15px] transition-colors">
-                            List Property Free &rarr;
-                        </button>
+                    <Link href="/register" className="w-full sm:w-auto bg-transparent text-white border border-white/30 hover:bg-white/10 px-8 py-3.5 rounded-full font-semibold text-[15px] transition-colors flex items-center justify-center gap-2">
+                        List Property Free &rarr;
                     </Link>
                 </div>
             </div>
