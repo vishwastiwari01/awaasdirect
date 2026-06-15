@@ -5,11 +5,14 @@ import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { BrandLogo } from '@/components/ui/BrandLogo';
+import { usePathname } from 'next/navigation';
 
 export function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const { user, isAuthenticated, logout } = useAuthStore();
+    const pathname = usePathname();
+    const isHomePage = pathname === '/';
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 10);
@@ -19,7 +22,7 @@ export function Navbar() {
 
     return (
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-            scrolled
+            (scrolled || !isHomePage)
                 ? 'bg-[#0A0F1A]/95 backdrop-blur-xl shadow-2xl border-b border-white/10'
                 : 'bg-transparent pt-2'
         }`}>
