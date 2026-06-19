@@ -15,6 +15,7 @@ import conversationRoutes from './routes/conversation.routes';
 import messageRoutes from './routes/message.routes';
 import userRoutes from './routes/user.routes';
 import aiRoutes from './routes/ai.routes';
+import paymentRoutes from './routes/payment.routes';
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // ─── 404 Handler ──────────────────────────────────────────────
 app.use((_req, res) => {

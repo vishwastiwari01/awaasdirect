@@ -169,7 +169,15 @@ export const createProperty = async (
         });
         
         if (propertiesAddedToday >= 2) {
-            throw Object.assign(new Error('You have reached the daily limit of 2 properties. Please wait 24 hours or pay ₹100 to add more.'), { status: 403, code: 'LIMIT_REACHED' });
+            if (user.propertyCredits > 0) {
+                // Deduct 1 credit
+                await prisma.user.update({
+                    where: { id: ownerId },
+                    data: { propertyCredits: { decrement: 1 } }
+                });
+            } else {
+                throw Object.assign(new Error('You have reached the daily limit of 2 properties. Please wait 24 hours or pay ₹100 to add more.'), { status: 403, code: 'LIMIT_REACHED' });
+            }
         }
     }
 

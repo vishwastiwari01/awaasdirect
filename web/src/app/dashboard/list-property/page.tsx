@@ -12,6 +12,14 @@ import { ChevronLeft, UploadCloud, X as XIcon, Film } from 'lucide-react';
 import Link from 'next/link';
 import { MapPicker } from '@/components/ui/MapPicker';
 
+const loadRazorpay = () => new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+});
+
 const schema = z.object({
     title: z.string().min(5, 'Title too short').max(200),
     description: z.string().max(5000).optional(),
@@ -37,6 +45,8 @@ export default function ListPropertyPage() {
     const [success, setSuccess] = useState(false);
     const [files, setFiles] = useState<File[]>([]);
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [limitReached, setLimitReached] = useState(false);
+    const [paymentPending, setPaymentPending] = useState(false);
 
     const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
         resolver: zodResolver(schema),
@@ -66,9 +76,63 @@ export default function ListPropertyPage() {
 
             setSuccess(true);
             setTimeout(() => router.push('/dashboard'), 1500);
-        } catch (err: unknown) {
-            const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-            setError(msg ?? 'Failed to create listing or upload media. Please try again.');
+        } catch (err: any) {
+            const code = err?.response?.data?.code;
+            const msg = err?.response?.data?.message;
+            if (code === 'LIMIT_REACHED') {
+                setLimitReached(true);
+                setError(msg ?? 'You have reached the daily limit.');
+            } else {
+                setError(msg ?? 'Failed to create listing or upload media. Please try again.');
+            }
+        }
+    };
+
+    const handlePayment = async () => {
+        setPaymentPending(true);
+        setError('');
+        try {
+            const loaded = await loadRazorpay();
+            if (!loaded) throw new Error('Razorpay SDK failed to load');
+
+            const { data } = await apiClient.post('/api/payments/create-order');
+            const order = data.data;
+
+            const options = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                amount: order.amount,
+                currency: order.currency,
+                name: "AwaasDirect",
+                description: "Unlock 1 Property Listing",
+                order_id: order.id,
+                handler: async function (response: any) {
+                    try {
+                        const verifyRes = await apiClient.post('/api/payments/verify-payment', {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature
+                        });
+                        if (verifyRes.data.success) {
+                            setLimitReached(false);
+                            setError('');
+                            // Auto-submit the form now that credit is purchased
+                            handleSubmit(onSubmit)();
+                        }
+                    } catch (err) {
+                        setError('Payment verification failed. Please contact support.');
+                    }
+                },
+                theme: { color: "#1B4332" }
+            };
+            const rzp = new (window as any).Razorpay(options);
+            rzp.on('payment.failed', function (response: any) {
+                setError(`Payment failed: ${response.error.description}`);
+            });
+            rzp.open();
+        } catch (err: any) {
+            setError(err.message || 'Failed to initialize payment');
+        } finally {
+            setPaymentPending(false);
         }
     };
 
@@ -118,8 +182,13 @@ export default function ListPropertyPage() {
                         </div>
                     )}
                     {error && (
-                        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '16px 20px', color: '#DC2626', fontSize: 14, marginBottom: 24 }}>
-                            {error}
+                        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '16px 20px', color: '#DC2626', fontSize: 14, marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            <span>{error}</span>
+                            {limitReached && (
+                                <button type="button" onClick={handlePayment} disabled={paymentPending} style={{ padding: '10px 16px', background: '#DC2626', color: 'white', border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start' }}>
+                                    {paymentPending ? 'Processing…' : 'Pay ₹100 to Unlock'}
+                                </button>
+                            )}
                         </div>
                     )}
 

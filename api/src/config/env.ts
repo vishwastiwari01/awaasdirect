@@ -26,6 +26,9 @@ const envSchema = z.object({
     RESEND_API_KEY: z.string().min(1),
     EMAIL_FROM: z.string().email().default('noreply@awaasdirect.in'),
 
+    RAZORPAY_KEY_ID: z.string().min(1),
+    RAZORPAY_KEY_SECRET: z.string().min(1),
+
     RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
     RATE_LIMIT_MAX: z.coerce.number().default(100),
     AUTH_RATE_LIMIT_MAX: z.coerce.number().default(5),
