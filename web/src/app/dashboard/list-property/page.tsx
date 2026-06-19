@@ -11,6 +11,8 @@ import { CITIES, PROPERTY_TYPES } from '@/lib/utils';
 import { ChevronLeft, UploadCloud, X as XIcon, Film } from 'lucide-react';
 import Link from 'next/link';
 import { MapPicker } from '@/components/ui/MapPicker';
+import { State, City } from 'country-state-city';
+import { useEffect } from 'react';
 
 const loadRazorpay = () => new Promise((resolve) => {
     const script = document.createElement('script');
@@ -25,7 +27,9 @@ const schema = z.object({
     description: z.string().max(5000).optional(),
     type: z.string().min(1, 'Select property type'),
     transactionType: z.string().min(1, 'Select sale or rent'),
+    state: z.string().min(1, 'Select state'),
     city: z.string().min(1, 'Select city'),
+    pincode: z.string().length(6, 'Pincode must be 6 digits').regex(/^\d+$/, 'Numbers only'),
     locality: z.string().min(2, 'Add locality / area name'),
     bhk: z.coerce.number().int().min(1).max(10).optional(),
     sqft: z.coerce.number().min(1, 'Enter area in sqft'),
@@ -53,6 +57,19 @@ export default function ListPropertyPage() {
         defaultValues: { type: 'APARTMENT', transactionType: 'SALE' },
     });
     const propType = watch('type');
+    const selectedStateName = watch('state');
+
+    const [statesList] = useState(() => State.getStatesOfCountry('IN'));
+    const [citiesList, setCitiesList] = useState<{name: string}[]>([]);
+
+    useEffect(() => {
+        const s = statesList.find(st => st.name === selectedStateName);
+        if (s) {
+            setCitiesList(City.getCitiesOfState('IN', s.isoCode));
+        } else {
+            setCitiesList([]);
+        }
+    }, [selectedStateName, statesList]);
 
     const onSubmit = async (data: FormData) => {
         setError('');
@@ -224,14 +241,23 @@ export default function ListPropertyPage() {
                             <div style={{ fontSize: 12, fontFamily: '"DM Mono",monospace', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--forest-light)', marginBottom: 20 }}>Location</div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                                 <div>
+                                    <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 6 }}>State</label>
+                                    <select {...register('state')} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--border)', borderRadius: 10, fontFamily: '"DM Sans",sans-serif', fontSize: 14, background: 'var(--warm-white)', outline: 'none' }}>
+                                        <option value="">Select state</option>
+                                        {statesList.map(s => <option key={s.isoCode} value={s.name}>{s.name}</option>)}
+                                    </select>
+                                    {errors.state && <p style={{ fontSize: 12, color: '#DC2626', marginTop: 4 }}>{errors.state.message}</p>}
+                                </div>
+                                <div>
                                     <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 6 }}>City</label>
-                                    <select {...register('city')} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--border)', borderRadius: 10, fontFamily: '"DM Sans",sans-serif', fontSize: 14, background: 'var(--warm-white)', outline: 'none' }}>
+                                    <select {...register('city')} disabled={!selectedStateName} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--border)', borderRadius: 10, fontFamily: '"DM Sans",sans-serif', fontSize: 14, background: 'var(--warm-white)', outline: 'none' }}>
                                         <option value="">Select city</option>
-                                        {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                        {citiesList.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
                                     </select>
                                     {errors.city && <p style={{ fontSize: 12, color: '#DC2626', marginTop: 4 }}>{errors.city.message}</p>}
                                 </div>
                                 {field('Locality / Area', 'locality', 'Whitefield, Koramangala, Gachibowli…')}
+                                {field('Pincode', 'pincode', '500081')}
                             </div>
                             <div style={{ marginTop: 24 }}>
                                 <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 6 }}>Exact Location <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(Drag pin to pinpoint)</span></label>

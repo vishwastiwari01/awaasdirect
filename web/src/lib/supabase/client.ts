@@ -23,6 +23,33 @@ export async function signInWithGoogle() {
     if (error) throw error;
 }
 
+/** Sign up with Email/Password */
+export async function signUpWithEmail(email: string, password: string, name: string) {
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: {
+                full_name: name,
+            }
+        }
+    });
+    if (error) throw error;
+    return data;
+}
+
+/** Sign in with Email/Password */
+export async function signInWithEmail(email: string, password: string) {
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+    });
+    if (error) throw error;
+    return data;
+}
+
 /** Sign out from Supabase */
 export async function signOut() {
     const supabase = createClient();

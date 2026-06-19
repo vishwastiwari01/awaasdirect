@@ -140,8 +140,10 @@ model Property {
   status          PropertyStatus  @default(ACTIVE)
 
   // Location
+  state           String
   city            String
   locality        String
+  pincode         String
   address         String?
   latitude        Float?
   longitude       Float?

@@ -6,7 +6,7 @@ dotenv.config();
 const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     PORT: z.coerce.number().default(4000),
-    API_URL: z.string().url(),
+    API_URL: z.string().url().optional(),
     FRONTEND_URL: z.string().url(),
 
     DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
@@ -21,9 +21,9 @@ const envSchema = z.object({
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
     SUPABASE_BUCKET_NAME: z.string().min(1).default('awaasdirect-assets'),
 
-    OPENAI_API_KEY: z.string().min(1),
+    OPENAI_API_KEY: z.string().optional(),
 
-    RESEND_API_KEY: z.string().min(1),
+    RESEND_API_KEY: z.string().optional(),
     EMAIL_FROM: z.string().email().default('noreply@awaasdirect.in'),
 
     RAZORPAY_KEY_ID: z.string().min(1),
