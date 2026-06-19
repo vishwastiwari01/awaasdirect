@@ -62,7 +62,7 @@ router.get('/', generalLimiter, validate(PropertyFiltersSchema, 'query'), Proper
  *     security:
  *       - bearerAuth: []
  */
-router.get('/my', authenticate, requireOwner, PropertyController.myListings);
+router.get('/my', authenticate, PropertyController.myListings);
 
 /**
  * @swagger
@@ -99,8 +99,6 @@ router.get('/:id', generalLimiter, PropertyController.getById);
 router.post(
     '/',
     authenticate,
-    requireVerified,
-    requireOwner,
     propertyLimiter,
     validate(CreatePropertySchema),
     PropertyController.create
@@ -118,7 +116,6 @@ router.post(
 router.patch(
     '/:id',
     authenticate,
-    requireVerified,
     validate(UpdatePropertySchema),
     PropertyController.update
 );
@@ -148,7 +145,6 @@ import { upload, handleUploadError } from '../middleware/upload';
 router.post(
     '/:id/photos',
     authenticate,
-    requireOwner,
     upload.array('photos', 10), // max 10 photos
     handleUploadError,
     PropertyController.uploadPhotos
