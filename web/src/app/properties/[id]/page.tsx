@@ -80,7 +80,7 @@ export default function PropertyDetailPage() {
         );
     }
 
-    const p = data as Record<string, unknown>;
+    const p = data as any;
     const verification = p.verification as { reraStatus?: string; reraNumber?: string } | null;
     const owner = p.owner as { name?: string | null; aadhaarVerified?: boolean } | null;
     const virtualTour = p.virtualTour as { status?: string } | null;
