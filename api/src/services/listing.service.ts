@@ -14,8 +14,8 @@ export const CreatePropertySchema = z.object({
     type: z.nativeEnum(PropertyType),
     transactionType: z.nativeEnum(TransactionType),
     city: z.string().min(2).max(100),
-    state: z.string().min(2).max(100),
-    pincode: z.string().length(6).regex(/^\d+$/),
+    state: z.string().min(2).max(100).optional().default(''),
+    pincode: z.string().optional().default(''),
     locality: z.string().min(2).max(100),
     address: z.string().max(300).optional(),
     latitude: z.number().optional(),
@@ -157,8 +157,16 @@ export const getPropertyById = async (id: string, incrementView = true): Promise
 
 export const createProperty = async (
     ownerId: string,
-    data: z.infer<typeof CreatePropertySchema>
+    rawData: unknown
 ): Promise<object> => {
+    // Validate input
+    const parsed = CreatePropertySchema.safeParse(rawData);
+    if (!parsed.success) {
+        const msg = parsed.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+        throw Object.assign(new Error(msg), { status: 400 });
+    }
+    const data = parsed.data;
+
     // 1. Fetch user to check role and limits
     const user = await prisma.user.findUnique({ where: { id: ownerId } });
     if (!user) throw Object.assign(new Error('User not found'), { status: 404 });

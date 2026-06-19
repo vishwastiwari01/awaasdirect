@@ -3,7 +3,7 @@ import { logger } from '../utils/logger';
 import { sendError } from '../utils/response';
 
 export const errorHandler = (
-    err: Error,
+    err: any,
     req: Request,
     res: Response,
     _next: NextFunction
@@ -15,7 +15,9 @@ export const errorHandler = (
         stack: err.stack,
     });
 
-    sendError(res, 'An unexpected error occurred', 500, 'INTERNAL_ERROR');
+    const status = err.status || 500;
+    const code = err.code || 'INTERNAL_ERROR';
+    sendError(res, err.message || 'An unexpected error occurred', status, code);
 };
 
 /** Wraps async route handlers to forward errors to errorHandler */
