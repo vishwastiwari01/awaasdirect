@@ -155,6 +155,24 @@ export const createProperty = async (
     ownerId: string,
     data: z.infer<typeof CreatePropertySchema>
 ): Promise<object> => {
+    // 1. Fetch user to check role and limits
+    const user = await prisma.user.findUnique({ where: { id: ownerId } });
+    if (!user) throw Object.assign(new Error('User not found'), { status: 404 });
+
+    if (user.role !== 'ADMIN' && user.email !== 'vishwast656@gmail.com') {
+        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const propertiesAddedToday = await prisma.property.count({
+            where: {
+                ownerId,
+                createdAt: { gte: yesterday }
+            }
+        });
+        
+        if (propertiesAddedToday >= 2) {
+            throw Object.assign(new Error('You have reached the daily limit of 2 properties. Please wait 24 hours or pay ₹100 to add more.'), { status: 403, code: 'LIMIT_REACHED' });
+        }
+    }
+
     const { reraNumber, reraState, availableFrom, ...propertyData } = data;
 
     const property = await prisma.property.create({

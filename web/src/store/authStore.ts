@@ -9,6 +9,7 @@ interface AppUser {
     role: 'BUYER' | 'OWNER' | 'ADMIN';
     aadhaarVerified: boolean;
     image?: string | null;
+    phone?: string | null;
 }
 
 interface AuthState {
@@ -35,6 +36,7 @@ function userFromSession(session: Session): AppUser {
         role: (su.user_metadata?.role as AppUser['role']) ?? 'BUYER',
         aadhaarVerified: false,
         image: su.user_metadata?.avatar_url ?? null,
+        phone: su.phone ?? null,
     };
 }
 
