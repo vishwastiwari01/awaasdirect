@@ -22,8 +22,24 @@ const app = express();
 // ─── Security & Parsing Middleware ────────────────────────────
 app.use(helmet());
 app.use(generalLimiter);   // Global: 100 req / 15 min (DoS protection)
+const allowedOrigins = [
+    env.FRONTEND_URL,
+    'https://myawass.online',
+    'https://www.myawass.online',
+    'http://localhost:3000',
+    'https://awaasdirect.vercel.app'
+];
+
 app.use(cors({
-    origin: env.FRONTEND_URL,
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            // Log rejected CORS for debugging
+            console.error('CORS blocked request from origin:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
