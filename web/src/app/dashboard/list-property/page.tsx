@@ -10,7 +10,7 @@ import apiClient from '@/lib/api-client';
 import { CITIES, PROPERTY_TYPES } from '@/lib/utils';
 import { ChevronLeft, UploadCloud, X as XIcon, Film } from 'lucide-react';
 import Link from 'next/link';
-import { MapPicker } from '@/components/ui/MapPicker';
+
 import { State, City } from 'country-state-city';
 import { useEffect } from 'react';
 
@@ -261,11 +261,41 @@ export default function ListPropertyPage() {
                                 {field('Pincode', 'pincode', '500081')}
                             </div>
                             <div style={{ marginTop: 24 }}>
-                                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 6 }}>Exact Location <span style={{ color: 'var(--muted)', fontWeight: 400 }}>(Drag pin to pinpoint)</span></label>
-                                <div style={{ height: 300, borderRadius: 12, overflow: 'hidden', border: '1.5px solid var(--border)' }}>
-                                    <MapPicker onLocationSelect={(lat, lng) => setLocation({ lat, lng })} />
-                                </div>
-                                {location && <p style={{ fontSize: 12, color: 'var(--forest)', marginTop: 8 }}>✓ Location pinned ({location.lat.toFixed(4)}, {location.lng.toFixed(4)})</p>}
+                                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 6 }}>Exact Location</label>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (navigator.geolocation) {
+                                            navigator.geolocation.getCurrentPosition(
+                                                (pos) => {
+                                                    const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                                                    setLocation(coords);
+                                                },
+                                                () => {
+                                                    alert('Unable to retrieve your location. Please check browser permissions.');
+                                                }
+                                            );
+                                        } else {
+                                            alert('Geolocation is not supported by your browser.');
+                                        }
+                                    }}
+                                    style={{
+                                        marginTop: '8px',
+                                        padding: '8px 12px',
+                                        background: 'var(--forest)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    📍 Use Current Location
+                                </button>
+                                {location && (
+                                    <p style={{ fontSize: 12, color: 'var(--forest)', marginTop: 8 }}>
+                                        ✓ Location pinned ({location.lat.toFixed(4)}, {location.lng.toFixed(4)})
+                                    </p>
+                                )}
                             </div>
                         </div>
 
