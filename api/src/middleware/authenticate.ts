@@ -30,8 +30,9 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     const token = authHeader.split(' ')[1];
 
     try {
-        // Verify using Supabase JWT secret
-        const payload = jwt.verify(token, env.SUPABASE_JWT_SECRET) as SupabaseJWTPayload;
+        // Supabase JWT secret is base64-encoded in the dashboard — decode it first
+        const secret = Buffer.from(env.SUPABASE_JWT_SECRET, 'base64');
+        const payload = jwt.verify(token, secret) as SupabaseJWTPayload;
 
         if (!payload.sub) {
             sendError(res, 'Invalid token payload', 401, 'TOKEN_INVALID');
