@@ -261,39 +261,57 @@ export default function ListPropertyPage() {
                                 {field('Pincode', 'pincode', '500081')}
                             </div>
                             <div style={{ marginTop: 24 }}>
-                                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 6 }}>Exact Location</label>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        if (navigator.geolocation) {
-                                            navigator.geolocation.getCurrentPosition(
-                                                (pos) => {
-                                                    const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                                                    setLocation(coords);
-                                                },
-                                                () => {
-                                                    alert('Unable to retrieve your location. Please check browser permissions.');
-                                                }
-                                            );
-                                        } else {
-                                            alert('Geolocation is not supported by your browser.');
-                                        }
-                                    }}
-                                    style={{
-                                        marginTop: '8px',
-                                        padding: '8px 12px',
-                                        background: 'var(--forest)',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                    }}
-                                >
-                                    📍 Use Current Location
-                                </button>
-                                {location && (
+                                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--charcoal)', marginBottom: 4 }}>
+                                    Exact Location <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}>(optional — helps buyers find your property on map)</span>
+                                </label>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (navigator.geolocation) {
+                                                navigator.geolocation.getCurrentPosition(
+                                                    (pos) => {
+                                                        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                                                        setLocation(coords);
+                                                    },
+                                                    () => {
+                                                        alert('Unable to retrieve your location. Please check browser permissions.');
+                                                    }
+                                                );
+                                            } else {
+                                                alert('Geolocation is not supported by your browser.');
+                                            }
+                                        }}
+                                        style={{
+                                            padding: '8px 14px',
+                                            background: 'var(--forest)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            fontSize: 13,
+                                            fontWeight: 600,
+                                        }}
+                                    >
+                                        📍 Use Current Location
+                                    </button>
+                                    {location && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setLocation(null)}
+                                            style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: 12, cursor: 'pointer', textDecoration: 'underline' }}
+                                        >
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
+                                {location ? (
                                     <p style={{ fontSize: 12, color: 'var(--forest)', marginTop: 8 }}>
                                         ✓ Location pinned ({location.lat.toFixed(4)}, {location.lng.toFixed(4)})
+                                    </p>
+                                ) : (
+                                    <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>
+                                        Skip this if you prefer not to share exact coordinates.
                                     </p>
                                 )}
                             </div>
