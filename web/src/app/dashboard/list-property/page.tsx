@@ -94,13 +94,14 @@ export default function ListPropertyPage() {
             setSuccess(true);
             setTimeout(() => router.push('/dashboard'), 1500);
         } catch (err: any) {
+            console.error('Submission error:', err);
             const code = err?.response?.data?.code;
-            const msg = err?.response?.data?.message;
+            const msg = err?.response?.data?.message || err.message || 'Unknown error occurred';
             if (code === 'LIMIT_REACHED') {
                 setLimitReached(true);
                 setError(msg ?? 'You have reached the daily limit.');
             } else {
-                setError(msg ?? 'Failed to create listing or upload media. Please try again.');
+                setError(`Error: ${msg}. Please try again.`);
             }
         }
     };

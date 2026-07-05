@@ -62,22 +62,67 @@ export function MapPicker({ onLocationSelect, initialLocation }: MapPickerProps)
         }
     };
 
+    const handleCurrentLocation = (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent form submission
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    setMarkerPos(pos);
+                    setZoom(16);
+                    map?.panTo(pos);
+                    onLocationSelect(pos.lat, pos.lng);
+                },
+                () => {
+                    alert('Unable to retrieve your location. Please check browser permissions.');
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser.');
+        }
+    };
+
     if (!isLoaded) return <div style={{ width: '100%', height: '100%', background: '#f5f5f5', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)' }}>Loading Maps...</div>;
 
     return (
-        <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={markerPos}
-            zoom={zoom}
-            onLoad={onLoad}
-            onUnmount={onUnmount}
-            onClick={handleMapClick}
-            options={{
-                disableDefaultUI: false,
-                zoomControl: true,
-            }}
-        >
-            <Marker position={markerPos} />
-        </GoogleMap>
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+            <button
+                onClick={handleCurrentLocation}
+                style={{
+                    position: 'absolute',
+                    bottom: 20,
+                    right: 60,
+                    zIndex: 10,
+                    background: 'var(--forest)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 12px',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                }}
+            >
+                📍 Use Current Location
+            </button>
+            <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={markerPos}
+                zoom={zoom}
+                onLoad={onLoad}
+                onUnmount={onUnmount}
+                onClick={handleMapClick}
+                options={{
+                    disableDefaultUI: false,
+                    zoomControl: true,
+                }}
+            >
+                <Marker position={markerPos} />
+            </GoogleMap>
+        </div>
     );
 }
