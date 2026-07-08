@@ -23,9 +23,11 @@ router.post('/indralok', async (req: Request, res: Response) => {
         if (!users || users.length === 0) {
             console.log('User not found — creating ADMIN owner...');
             const newUserId = crypto.randomBytes(12).toString('hex');
+            // phone/phoneHash use email hash as placeholder to satisfy NOT NULL constraint
+            const phonePlaceholder = crypto.createHash('sha256').update('vishwast656@gmail.com').digest('hex').slice(0, 20);
             await prisma.$queryRawUnsafe(`
-                INSERT INTO users (id, email, name, role, "isActive", "aadhaarVerified", "createdAt", "updatedAt")
-                VALUES ('${newUserId}', 'vishwast656@gmail.com', 'Vishwas Tiwari', 'ADMIN', true, false, NOW(), NOW())
+                INSERT INTO users (id, email, name, phone, "phoneHash", role, "isActive", "aadhaarVerified", "createdAt", "updatedAt")
+                VALUES ('${newUserId}', 'vishwast656@gmail.com', 'Vishwas Tiwari', '${phonePlaceholder}', '${phonePlaceholder}', 'ADMIN', true, false, NOW(), NOW())
                 ON CONFLICT (email) DO NOTHING
             `);
             users = await prisma.$queryRawUnsafe<any[]>(
