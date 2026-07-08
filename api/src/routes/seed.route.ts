@@ -95,6 +95,7 @@ router.post('/indralok', async (req: Request, res: Response) => {
             const res = await fetch(uploadUrl, {
                 method: 'POST',
                 headers: {
+                    'apikey': SERVICE_KEY,
                     'Authorization': `Bearer ${SERVICE_KEY}`,
                     'Content-Type': 'image/jpeg',
                     'x-upsert': 'true',
@@ -170,6 +171,7 @@ router.post('/indralok', async (req: Request, res: Response) => {
                     room312Exists: fs.existsSync(room312Dir),
                     cwd: process.cwd(),
                     dirname: __dirname,
+                    serviceKeyPrefix: SERVICE_KEY ? SERVICE_KEY.substring(0, 10) : 'missing',
                 }
             }
         });
