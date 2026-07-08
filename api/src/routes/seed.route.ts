@@ -108,9 +108,13 @@ router.post('/indralok', async (req: Request, res: Response) => {
             return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${key}`;
         };
 
-        const rootDir = process.cwd(); // images live in api/ folder alongside the server
-        const room412Path = path.join(rootDir, 'room412.jpeg');
-        const room312Dir = path.join(rootDir, 'room312');
+        // __dirname = api/dist/routes/, go up 3 levels to get to api/ root
+        const rootDir = path.join(__dirname, '..', '..', '..');
+        const room412Path = path.join(rootDir, 'api', 'room412.jpeg');
+        const room312Dir  = path.join(rootDir, 'api', 'room312');
+        console.log('rootDir:', rootDir);
+        console.log('room412Path:', room412Path, 'exists:', fs.existsSync(room412Path));
+        console.log('room312Dir:', room312Dir, 'exists:', fs.existsSync(room312Dir));
 
         const uploadedPhotos: { propertyId: string; url: string; key: string; isCover: boolean }[] = [];
 
@@ -159,12 +163,19 @@ router.post('/indralok', async (req: Request, res: Response) => {
 
         return res.status(200).json({
             success: true,
-            message: `✅ Both apartments created with ${uploadedPhotos.length} photos uploaded!`,
+            message: `Both apartments created with ${uploadedPhotos.length} photos uploaded!`,
             data: {
                 room312: 'indralok-room-312',
                 room412: 'indralok-room-412',
                 photosUploaded: uploadedPhotos.length,
                 photos: uploadedPhotos.map(p => p.url),
+                debug: {
+                    rootDir,
+                    room412Exists: fs.existsSync(room412Path),
+                    room312Exists: fs.existsSync(room312Dir),
+                    cwd: process.cwd(),
+                    dirname: __dirname,
+                }
             }
         });
 
