@@ -1,5 +1,9 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../config/database';
+import { createClient } from '@supabase/supabase-js';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
 
 const router = Router();
 
@@ -11,21 +15,34 @@ router.post('/indralok', async (req: Request, res: Response) => {
     }
 
     try {
-        // Use raw SQL to avoid schema drift issues
-        const users = await prisma.$queryRawUnsafe<any[]>(
+        // ── 1. Find or create owner user ──────────────────────────
+        let users = await prisma.$queryRawUnsafe<any[]>(
             `SELECT id, email FROM users WHERE email = 'vishwast656@gmail.com' LIMIT 1`
         );
 
         if (!users || users.length === 0) {
-            return res.status(404).json({ success: false, message: 'Owner user not found. Please log in to the website first.' });
+            console.log('User not found — creating ADMIN owner...');
+            const newUserId = crypto.randomBytes(12).toString('hex');
+            await prisma.$queryRawUnsafe(`
+                INSERT INTO users (id, email, name, role, "isActive", "aadhaarVerified", "createdAt", "updatedAt")
+                VALUES ('${newUserId}', 'vishwast656@gmail.com', 'Vishwas Tiwari', 'ADMIN', true, false, NOW(), NOW())
+                ON CONFLICT (email) DO NOTHING
+            `);
+            users = await prisma.$queryRawUnsafe<any[]>(
+                `SELECT id, email FROM users WHERE email = 'vishwast656@gmail.com' LIMIT 1`
+            );
+        }
+
+        if (!users || users.length === 0) {
+            return res.status(500).json({ success: false, message: 'Could not find or create owner user.' });
         }
 
         const ownerId = users[0].id;
-        console.log('✅ Found owner:', ownerId);
+        console.log('✅ Owner:', ownerId);
 
         const now = new Date().toISOString();
 
-        // Insert Room 312
+        // ── 2. Insert both properties ──────────────────────────────
         await prisma.$queryRawUnsafe(`
             INSERT INTO properties (id, title, description, type, "transactionType", status,
                 state, city, locality, pincode, address, latitude, longitude,
@@ -45,7 +62,6 @@ router.post('/indralok', async (req: Request, res: Response) => {
             ON CONFLICT (id) DO NOTHING
         `);
 
-        // Insert Room 412
         await prisma.$queryRawUnsafe(`
             INSERT INTO properties (id, title, description, type, "transactionType", status,
                 state, city, locality, pincode, address, latitude, longitude,
@@ -65,10 +81,87 @@ router.post('/indralok', async (req: Request, res: Response) => {
             ON CONFLICT (id) DO NOTHING
         `);
 
+        console.log('✅ Properties inserted');
+
+        // ── 3. Upload photos to Supabase Storage ───────────────────
+        const supabase = createClient(
+            process.env.SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+        const BUCKET = process.env.SUPABASE_BUCKET_NAME || 'awaasdirect-assets';
+
+        // Find image files relative to the running process (deployed root)
+        const rootDir = path.join(process.cwd(), '..');
+        const room412Path = path.join(rootDir, 'room412.jpeg');
+        const room312Dir = path.join(rootDir, 'room312');
+
+        const uploadedPhotos: { propertyId: string; url: string; key: string; isCover: boolean }[] = [];
+
+        // Upload room 412 photo
+        if (fs.existsSync(room412Path)) {
+            const buffer = fs.readFileSync(room412Path);
+            const key = `properties/indralok-room-412/room412.jpeg`;
+            const { error } = await supabase.storage.from(BUCKET).upload(key, buffer, {
+                contentType: 'image/jpeg',
+                upsert: true,
+            });
+            if (!error) {
+                const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(key);
+                uploadedPhotos.push({ propertyId: 'indralok-room-412', url: urlData.publicUrl, key, isCover: true });
+                console.log('✅ Uploaded room412.jpeg');
+            } else {
+                console.error('❌ room412 upload error:', error.message);
+            }
+        } else {
+            console.warn('⚠️ room412.jpeg not found at', room412Path);
+        }
+
+        // Upload room 312 photos
+        if (fs.existsSync(room312Dir)) {
+            const files = fs.readdirSync(room312Dir).filter(f => /\.(jpe?g|png|webp)$/i.test(f));
+            for (let i = 0; i < files.length; i++) {
+                const filePath = path.join(room312Dir, files[i]);
+                const buffer = fs.readFileSync(filePath);
+                const safeFilename = `photo_${i + 1}.jpeg`;
+                const key = `properties/indralok-room-312/${safeFilename}`;
+                const { error } = await supabase.storage.from(BUCKET).upload(key, buffer, {
+                    contentType: 'image/jpeg',
+                    upsert: true,
+                });
+                if (!error) {
+                    const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(key);
+                    uploadedPhotos.push({ propertyId: 'indralok-room-312', url: urlData.publicUrl, key, isCover: i === 0 });
+                    console.log(`✅ Uploaded room312 photo ${i + 1}`);
+                } else {
+                    console.error(`❌ room312 photo ${i + 1} upload error:`, error.message);
+                }
+            }
+        } else {
+            console.warn('⚠️ room312 folder not found at', room312Dir);
+        }
+
+        // ── 4. Insert photo records into DB ────────────────────────
+        for (let i = 0; i < uploadedPhotos.length; i++) {
+            const p = uploadedPhotos[i];
+            const photoId = crypto.randomBytes(8).toString('hex');
+            await prisma.$queryRawUnsafe(`
+                INSERT INTO property_photos (id, url, "s3Key", "isCover", "sortOrder", "propertyId", "createdAt", "updatedAt")
+                VALUES ('${photoId}', '${p.url}', '${p.key}', ${p.isCover}, ${i}, '${p.propertyId}', NOW(), NOW())
+                ON CONFLICT ("s3Key") DO NOTHING
+            `);
+        }
+
+        console.log(`✅ ${uploadedPhotos.length} photos inserted`);
+
         return res.status(200).json({
             success: true,
-            message: '✅ Both Indralok Palace apartments created successfully!',
-            data: { room312: 'indralok-room-312', room412: 'indralok-room-412' }
+            message: `✅ Both apartments created with ${uploadedPhotos.length} photos uploaded!`,
+            data: {
+                room312: 'indralok-room-312',
+                room412: 'indralok-room-412',
+                photosUploaded: uploadedPhotos.length,
+                photos: uploadedPhotos.map(p => p.url),
+            }
         });
 
     } catch (err: any) {
