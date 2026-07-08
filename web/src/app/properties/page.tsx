@@ -1,35 +1,12 @@
 'use client';
-import { useState } from 'react';
-import { SlidersHorizontal, Grid3X3, List, Search, Building2 } from 'lucide-react';
-import { PropertyCard } from '@/components/properties/PropertyCard';
+import { useState, useEffect } from 'react';
+import { SlidersHorizontal, Grid3X3, List, Search, Building2, Loader2 } from 'lucide-react';
+import { PropertyCard, PropertyCardData } from '@/components/properties/PropertyCard';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { apiClient } from '@/lib/api-client';
 
-const SAMPLE_PROPERTIES = Array.from({ length: 9 }, (_, i) => ({
-    id: String(i + 1),
-    title: [
-        '3 BHK Premium Apartment in Whitefield',
-        '2 BHK Fully Furnished Flat for Rent',
-        '4 BHK Independent Villa — Sarjapur',
-        '3 BHK Flat in Gachibowli',
-        '2 BHK Near Hitech City',
-        '2 BHK Sea-View Apartment — Worli',
-        'Spacious 1 BHK in Koramangala',
-        'Luxury Penthouse — Banjara Hills',
-        'Corner Plot — North-East Facing',
-    ][i],
-    price: [7_200_000, 24_000, 14_500_000, 13_200_000, 32_000, 45_000_000, 18_000, 85_000_000, 3_800_000][i],
-    listingType: ['SALE', 'RENT', 'SALE', 'SALE', 'RENT', 'SALE', 'RENT', 'SALE', 'SALE'][i],
-    propertyType: ['APARTMENT', 'APARTMENT', 'VILLA', 'APARTMENT', 'APARTMENT', 'APARTMENT', 'APARTMENT', 'APARTMENT', 'PLOT'][i],
-    city: ['Bangalore', 'Bangalore', 'Bangalore', 'Hyderabad', 'Hyderabad', 'Mumbai', 'Bangalore', 'Hyderabad', 'Hyderabad'][i],
-    locality: ['Whitefield', 'Indiranagar', 'Sarjapur', 'Gachibowli', 'Hitech City', 'Worli', 'Koramangala', 'Banjara Hills', 'Kompally'][i],
-    bedrooms: [3, 2, 4, 3, 2, 2, 1, 4, 0][i],
-    bathrooms: [2, 2, 4, 3, 2, 2, 1, 4, 0][i],
-    sqft: [1580, 1100, 3200, 1420, 980, 1050, 650, 4200, 1200][i],
-    images: [] as string[],
-}));
-
-const CITIES = ['Bangalore', 'Hyderabad', 'Mumbai', 'Pune', 'Delhi'];
+const CITIES = ['Bangalore', 'Hyderabad', 'Mumbai', 'Pune', 'Delhi', 'Rewa'];
 const TYPES = ['Apartment', 'House', 'Villa', 'Plot', 'PG / Hostel', 'Commercial'];
 const BHKS = ['1', '2', '3', '4', '5+'];
 const AMENITIES = ['Parking', 'Gym', 'Swimming Pool', 'Garden', 'Lift', 'Power Backup', 'Security', 'Club House'];
@@ -39,9 +16,33 @@ export default function PropertiesPage() {
     const [listingType, setListingType] = useState('all');
     const [selectedCity, setSelectedCity] = useState('');
     const [sort, setSort] = useState('Best Match');
+    const [properties, setProperties] = useState<PropertyCardData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const filtered = SAMPLE_PROPERTIES.filter(p => {
-        if (listingType !== 'all' && p.listingType !== listingType) return false;
+    useEffect(() => {
+        const fetchProperties = async () => {
+            setIsLoading(true);
+            try {
+                // If city is selected, we can pass it as a query param, otherwise fetch all
+                const params = new URLSearchParams();
+                if (selectedCity) params.append('city', selectedCity);
+                
+                const res = await apiClient.get(`/api/properties?${params.toString()}`);
+                if (res.data.success) {
+                    setProperties(res.data.data.properties);
+                }
+            } catch (err) {
+                console.error('Failed to fetch properties', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProperties();
+    }, [selectedCity]);
+
+    const filtered = properties.filter(p => {
+        if (listingType !== 'all' && p.transactionType !== listingType) return false;
+        // City is already filtered by API, but just in case:
         if (selectedCity && p.city !== selectedCity) return false;
         return true;
     });
@@ -173,21 +174,29 @@ export default function PropertiesPage() {
                         </div>
 
                         {/* Grid / List */}
-                        <div className={view === 'grid'
-                            ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'
-                            : 'flex flex-col gap-4'
-                        }>
-                            {filtered.map((property, i) => (
-                                <PropertyCard key={property.id} property={property} index={i} />
-                            ))}
-                        </div>
-
-                        {filtered.length === 0 && (
-                            <div className="text-center py-20 text-gray-400">
-                                <div className="flex justify-center mb-4 text-gray-300"><Building2 size={48} /></div>
-                                <p className="text-lg font-semibold text-gray-600">No properties found</p>
-                                <p className="text-sm mt-1">Try adjusting your filters</p>
+                        {isLoading ? (
+                            <div className="flex justify-center items-center py-32">
+                                <Loader2 className="w-8 h-8 text-[#1B4332] animate-spin" />
                             </div>
+                        ) : (
+                            <>
+                                <div className={view === 'grid'
+                                    ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'
+                                    : 'flex flex-col gap-4'
+                                }>
+                                    {filtered.map((property, i) => (
+                                        <PropertyCard key={property.id} property={property} index={i} />
+                                    ))}
+                                </div>
+
+                                {filtered.length === 0 && (
+                                    <div className="text-center py-20 text-gray-400">
+                                        <div className="flex justify-center mb-4 text-gray-300"><Building2 size={48} /></div>
+                                        <p className="text-lg font-semibold text-gray-600">No properties found</p>
+                                        <p className="text-sm mt-1">Try adjusting your filters</p>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
