@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../config/database';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseStorage, STORAGE_BUCKET } from '../config/storage';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -86,12 +86,6 @@ router.post('/indralok', async (req: Request, res: Response) => {
         console.log('✅ Properties inserted');
 
         // ── 3. Upload photos to Supabase Storage ───────────────────
-        const supabase = createClient(
-            process.env.SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
-        );
-        const BUCKET = process.env.SUPABASE_BUCKET_NAME || 'awaasdirect-assets';
-
         // Find image files relative to the running process (deployed root)
         const rootDir = path.join(process.cwd(), '..');
         const room412Path = path.join(rootDir, 'room412.jpeg');
@@ -103,12 +97,12 @@ router.post('/indralok', async (req: Request, res: Response) => {
         if (fs.existsSync(room412Path)) {
             const buffer = fs.readFileSync(room412Path);
             const key = `properties/indralok-room-412/room412.jpeg`;
-            const { error } = await supabase.storage.from(BUCKET).upload(key, buffer, {
+            const { error } = await supabaseStorage.from(BUCKET).upload(key, buffer, {
                 contentType: 'image/jpeg',
                 upsert: true,
             });
             if (!error) {
-                const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(key);
+                const { data: urlData } = supabaseStorage.from(BUCKET).getPublicUrl(key);
                 uploadedPhotos.push({ propertyId: 'indralok-room-412', url: urlData.publicUrl, key, isCover: true });
                 console.log('✅ Uploaded room412.jpeg');
             } else {
@@ -126,12 +120,12 @@ router.post('/indralok', async (req: Request, res: Response) => {
                 const buffer = fs.readFileSync(filePath);
                 const safeFilename = `photo_${i + 1}.jpeg`;
                 const key = `properties/indralok-room-312/${safeFilename}`;
-                const { error } = await supabase.storage.from(BUCKET).upload(key, buffer, {
+                const { error } = await supabaseStorage.from(BUCKET).upload(key, buffer, {
                     contentType: 'image/jpeg',
                     upsert: true,
                 });
                 if (!error) {
-                    const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(key);
+                    const { data: urlData } = supabaseStorage.from(BUCKET).getPublicUrl(key);
                     uploadedPhotos.push({ propertyId: 'indralok-room-312', url: urlData.publicUrl, key, isCover: i === 0 });
                     console.log(`✅ Uploaded room312 photo ${i + 1}`);
                 } else {
