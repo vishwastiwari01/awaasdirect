@@ -19,6 +19,8 @@ export default function PropertiesPage() {
     const [properties, setProperties] = useState<PropertyCardData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
+
     useEffect(() => {
         const fetchProperties = async () => {
             setIsLoading(true);
@@ -53,20 +55,20 @@ export default function PropertiesPage() {
             <div className="pt-16 min-h-screen bg-[#FDFAF6]">
 
                 {/* Page header */}
-                <div className="bg-white border-b border-gray-100 px-6 lg:px-12 py-6">
-                    <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", serif)' }}>
+                <div className="bg-white border-b border-gray-100 px-4 md:px-6 lg:px-12 py-4 md:py-6">
+                    <h1 className="text-xl md:text-2xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-playfair, "Playfair Display", serif)' }}>
                         Properties in India
                     </h1>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-xs md:text-sm text-gray-500 mt-1">
                         Showing {filtered.length} verified properties · Owner direct · Zero brokerage
                     </p>
                 </div>
 
-                <div className="flex max-w-7xl mx-auto px-4 lg:px-8 py-8 gap-8">
+                <div className="flex flex-col lg:flex-row max-w-7xl mx-auto px-4 lg:px-8 py-6 md:py-8 gap-6 md:gap-8">
 
                     {/* ── Sidebar ── */}
-                    <div className="hidden lg:block w-72 flex-shrink-0">
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-24">
+                    <div className={`${showMobileFilters ? 'block' : 'hidden'} lg:block w-full lg:w-72 flex-shrink-0`}>
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6 lg:sticky lg:top-24">
 
                             {/* Listing type toggle */}
                             <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6">
@@ -138,7 +140,7 @@ export default function PropertiesPage() {
                                 </div>
                             </div>
 
-                            <button className="w-full bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-semibold py-3 rounded-xl text-sm transition-all">
+                            <button onClick={() => setShowMobileFilters(false)} className="w-full bg-[#1B4332] hover:bg-[#2D6A4F] text-white font-semibold py-3 rounded-xl text-sm transition-all">
                                 Apply Filters
                             </button>
                         </div>
@@ -147,20 +149,22 @@ export default function PropertiesPage() {
                     {/* ── Main content ── */}
                     <div className="flex-1 min-w-0">
                         {/* Top bar */}
-                        <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-                            <p className="text-sm text-gray-500">
+                        <div className="flex items-center justify-between mb-4 md:mb-6 gap-2 flex-wrap">
+                            <p className="text-xs md:text-sm text-gray-500">
                                 <span className="font-semibold text-gray-900">{filtered.length} properties</span> found
                             </p>
-                            <div className="flex items-center gap-3">
-                                <SlidersHorizontal className="w-4 h-4 text-gray-400 lg:hidden" />
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <button onClick={() => setShowMobileFilters(!showMobileFilters)} className="lg:hidden p-2 border border-gray-200 rounded-lg bg-white flex items-center gap-2 shadow-sm text-gray-600 text-xs font-medium">
+                                    <SlidersHorizontal className="w-4 h-4" /> Filters
+                                </button>
                                 <select value={sort} onChange={e => setSort(e.target.value)}
-                                    className="text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#1B4332] bg-white">
+                                    className="hidden md:block text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#1B4332] bg-white">
                                     <option>Best Match</option>
                                     <option>Price: Low to High</option>
                                     <option>Price: High to Low</option>
                                     <option>Newest First</option>
                                 </select>
-                                <div className="flex bg-gray-100 rounded-xl p-1">
+                                <div className="hidden md:flex bg-gray-100 rounded-xl p-1">
                                     <button onClick={() => setView('grid')}
                                         className={`p-1.5 rounded-lg transition-all ${view === 'grid' ? 'bg-white shadow-sm' : ''}`}>
                                         <Grid3X3 className="w-4 h-4 text-gray-600" />

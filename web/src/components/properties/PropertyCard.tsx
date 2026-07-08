@@ -125,7 +125,7 @@ export function PropertyCard({ property, index = 0, onSave, isSaved = false }: {
                         <MapPin className="w-3 h-3 flex-shrink-0 text-[#1B4332]" />
                         {property.locality}, {property.city}
                     </p>
-                    <div className="flex items-center gap-4 pt-3 border-t border-gray-100 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 pt-3 border-t border-gray-100 text-xs text-gray-500 mb-3">
                         {beds != null && (
                             <span className="flex items-center gap-1">
                                 <BedDouble className="w-3.5 h-3.5" /> {beds} BHK
@@ -139,6 +139,18 @@ export function PropertyCard({ property, index = 0, onSave, isSaved = false }: {
                         <span className="flex items-center gap-1">
                             <Square className="w-3.5 h-3.5" /> {property.sqft} sqft
                         </span>
+                    </div>
+                    
+                    {/* Actions */}
+                    <div className="flex gap-2 mt-auto pt-2 border-t border-gray-50">
+                        <button onClick={(e) => { e.preventDefault(); window.open(`https://wa.me/916302429095?text=Hi, I am interested in ${property.title}`, '_blank'); }} 
+                            className="flex-1 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] font-semibold text-xs py-2 rounded-lg transition-colors text-center">
+                            WhatsApp
+                        </button>
+                        <button onClick={(e) => { e.preventDefault(); window.location.href = `tel:+916302429095`; }}
+                            className="flex-1 bg-[#1B4332]/10 hover:bg-[#1B4332]/20 text-[#1B4332] font-semibold text-xs py-2 rounded-lg transition-colors text-center">
+                            Call Owner
+                        </button>
                     </div>
                 </div>
             </div>

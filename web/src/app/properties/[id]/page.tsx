@@ -116,9 +116,9 @@ export default function PropertyDetailPage() {
                         </button>
                     </MediaGallery>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 40 }}>
+                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 mt-6">
                         {/* Left: details */}
-                        <div>
+                        <div className="flex-1 min-w-0">
                             <div style={{ fontFamily: '"Playfair Display",serif', fontSize: 32, fontWeight: 700, color: 'var(--charcoal)', marginBottom: 8 }}>
                                 {formatPrice(p.price as number)}
                                 {p.transactionType === 'RENT' && <span style={{ fontFamily: '"DM Sans",sans-serif', fontSize: 16, fontWeight: 400, color: 'var(--muted)' }}>/month</span>}
@@ -129,7 +129,7 @@ export default function PropertyDetailPage() {
                             </div>
 
                             {/* Specs */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, background: 'var(--cream)', borderRadius: 16, padding: 24, marginBottom: 32 }}>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-[#F8F5F0] rounded-2xl p-6 mb-8">
                                 {[
                                     { icon: <BedDouble size={24} color="var(--forest)" />, label: 'BHK', value: p.bhk ? `${p.bhk as string} BHK` : '—' },
                                     { icon: <Square size={24} color="var(--forest)" />, label: 'Area', value: formatArea(p.sqft as number) },
@@ -175,8 +175,8 @@ export default function PropertyDetailPage() {
                         </div>
 
                         {/* Right: Contact card */}
-                        <div>
-                            <div style={{ background: 'white', borderRadius: 20, border: '1.5px solid var(--border)', overflow: 'hidden', boxShadow: 'var(--card-shadow)', position: 'sticky', top: 80 }}>
+                        <div className="w-full lg:w-96 flex-shrink-0">
+                            <div className="bg-white rounded-2xl border-[1.5px] border-[#E8E0D5] overflow-hidden shadow-lg lg:sticky lg:top-24">
                                 {/* Chat header */}
                                 <div style={{ background: 'var(--forest)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
                                     <div style={{ width: 38, height: 38, background: 'var(--forest-light)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
@@ -209,15 +209,25 @@ export default function PropertyDetailPage() {
                                         rows={3}
                                         style={{ width: '100%', padding: '10px 14px', border: '1.5px solid var(--border)', borderRadius: 10, fontFamily: '"DM Sans",sans-serif', fontSize: 13, resize: 'none', outline: 'none', marginBottom: 10, background: 'var(--warm-white)' }}
                                     />
-                                    <div style={{ display: 'flex', gap: 8 }}>
+                                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                                         <button
                                             onClick={() => startChat()}
                                             disabled={chatLoading}
-                                            style={{ flex: 1, padding: 10, background: 'var(--forest)', color: 'white', border: 'none', borderRadius: 8, fontFamily: '"DM Sans",sans-serif', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                                            <MessageSquare size={14} /> {chatLoading ? 'Sending…' : 'Chat with Owner'}
+                                            style={{ flex: 1, padding: 10, background: 'var(--charcoal)', color: 'white', border: 'none', borderRadius: 8, fontFamily: '"DM Sans",sans-serif', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                            <MessageSquare size={14} /> {chatLoading ? 'Sending…' : 'Chat Internally'}
                                         </button>
                                         <button onClick={() => setSaved(!saved)} style={{ padding: '10px 14px', border: '1.5px solid var(--border)', borderRadius: 8, background: 'white', cursor: 'pointer', fontSize: 16 }}>
                                             <Heart size={20} fill={saved ? '#EF4444' : 'transparent'} color={saved ? '#EF4444' : 'var(--charcoal)'} />
+                                        </button>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 8 }}>
+                                        <button onClick={() => window.open(`https://wa.me/916302429095?text=Hi, I am interested in ${p.title}`, '_blank')} 
+                                            style={{ flex: 1, padding: 10, background: '#25D366', color: 'white', border: 'none', borderRadius: 8, fontFamily: '"DM Sans",sans-serif', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                            WhatsApp
+                                        </button>
+                                        <button onClick={() => window.location.href = `tel:+916302429095`}
+                                            style={{ flex: 1, padding: 10, background: 'var(--forest)', color: 'white', border: 'none', borderRadius: 8, fontFamily: '"DM Sans",sans-serif', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                            Call
                                         </button>
                                     </div>
                                 </div>
