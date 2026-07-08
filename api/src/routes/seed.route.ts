@@ -51,35 +51,31 @@ router.post('/indralok', async (req: Request, res: Response) => {
                 "ownerId", "viewCount", "createdAt", "updatedAt")
             VALUES (
                 'indralok-room-312',
-                '2BHK Fully Furnished Apartment — Flat 312, Indralok Palace, Rewa',
-                E'Premium 2BHK fully furnished apartment on the 3rd floor of Indralok Palace Apartment Complex, Rewa.\n\n✨ Key Highlights:\n• 2 Bedrooms | 2 Bathrooms\n• Fully Furnished with premium wooden work & stylish interiors\n• Elegant fall ceiling throughout\n• Private balcony\n• Dedicated garage parking\n• 24/7 lift access\n• Ready to move in\n\n🏠 Building Amenities:\n• Lift / Elevator\n• Garage parking space\n• Gated society with security\n\n📍 Location: Indralok Palace Apartment Complex, Rewa, Madhya Pradesh\n🔑 Flat No: 312 (3rd Floor)\n💰 Price: ₹40 Lakhs (Negotiable)\n\n📞 For site visits & details: 6302429095',
+                '2BHK Fully Furnished Apartment, Rewa',
+                E'Premium 2BHK fully furnished apartment in Rewa.\n\n✨ Key Highlights:\n• 2 Bedrooms | 2 Bathrooms\n• Fully Furnished with premium wooden work & stylish interiors\n• Elegant fall ceiling throughout\n• Private balcony\n• Dedicated garage parking\n• 24/7 lift access\n• Ready to move in\n\n🏠 Building Amenities:\n• Lift / Elevator\n• Garage parking space\n• Gated society with security\n\n📍 Location: Rewa City, Madhya Pradesh\n💰 Price: ₹40 Lakhs (Negotiable)\n\n📞 For site visits & details: 6302429095',
                 'APARTMENT', 'SALE', 'ACTIVE',
-                'Madhya Pradesh', 'Rewa', 'Indralok Palace Apartment Complex',
-                '486001', 'Indralok Palace Apartment Complex, Rewa, Madhya Pradesh',
+                'Madhya Pradesh', 'Rewa', 'Rewa City',
+                '486001', 'Rewa, Madhya Pradesh',
                 24.5362, 81.2999,
                 2, 1100, 'FULLY_FURNISHED', 4000000, true, 3,
                 '${ownerId}', 0, '${now}', '${now}'
-            )
-            ON CONFLICT (id) DO NOTHING
-        `);
-
-        await prisma.$queryRawUnsafe(`
-            INSERT INTO properties (id, title, description, type, "transactionType", status,
-                state, city, locality, pincode, address, latitude, longitude,
-                bhk, sqft, furnishing, price, "priceNegotiable", floors,
-                "ownerId", "viewCount", "createdAt", "updatedAt")
-            VALUES (
+            ), (
                 'indralok-room-412',
-                '2BHK Fully Furnished Apartment — Flat 412, Indralok Palace, Rewa',
-                E'Premium 2BHK fully furnished apartment on the 4th floor of Indralok Palace Apartment Complex, Rewa.\n\n✨ Key Highlights:\n• 2 Bedrooms | 2 Bathrooms\n• Fully Furnished with premium wooden work & stylish interiors\n• Elegant fall ceiling throughout\n• Private balcony with elevated open views\n• Dedicated garage parking\n• 24/7 lift access\n• Ready to move in\n\n🏠 Building Amenities:\n• Lift / Elevator\n• Garage parking space\n• Gated society with security\n\n📍 Location: Indralok Palace Apartment Complex, Rewa, Madhya Pradesh\n🔑 Flat No: 412 (4th Floor)\n💰 Price: ₹40 Lakhs (Negotiable)\n\n📞 For site visits & details: 6302429095',
+                '2BHK Fully Furnished Apartment, Rewa',
+                E'Premium 2BHK fully furnished apartment in Rewa.\n\n✨ Key Highlights:\n• 2 Bedrooms | 2 Bathrooms\n• Fully Furnished with premium wooden work & stylish interiors\n• Elegant fall ceiling throughout\n• Private balcony\n• Dedicated garage parking\n• 24/7 lift access\n• Ready to move in\n\n🏠 Building Amenities:\n• Lift / Elevator\n• Garage parking space\n• Gated society with security\n\n📍 Location: Rewa City, Madhya Pradesh\n💰 Price: ₹40 Lakhs (Negotiable)\n\n📞 For site visits & details: 6302429095',
                 'APARTMENT', 'SALE', 'ACTIVE',
-                'Madhya Pradesh', 'Rewa', 'Indralok Palace Apartment Complex',
-                '486001', 'Indralok Palace Apartment Complex, Rewa, Madhya Pradesh',
+                'Madhya Pradesh', 'Rewa', 'Rewa City',
+                '486001', 'Rewa, Madhya Pradesh',
                 24.5362, 81.2999,
                 2, 1100, 'FULLY_FURNISHED', 4000000, true, 4,
                 '${ownerId}', 0, '${now}', '${now}'
             )
-            ON CONFLICT (id) DO NOTHING
+            ON CONFLICT (id) DO UPDATE SET 
+                title = EXCLUDED.title,
+                description = EXCLUDED.description,
+                locality = EXCLUDED.locality,
+                address = EXCLUDED.address,
+                "updatedAt" = EXCLUDED."updatedAt"
         `);
 
         console.log('✅ Properties inserted');
