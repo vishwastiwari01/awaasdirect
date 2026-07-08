@@ -108,7 +108,7 @@ router.post('/indralok', async (req: Request, res: Response) => {
             return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${key}`;
         };
 
-        const rootDir = path.join(process.cwd(), '..');
+        const rootDir = process.cwd(); // images live in api/ folder alongside the server
         const room412Path = path.join(rootDir, 'room412.jpeg');
         const room312Dir = path.join(rootDir, 'room312');
 
