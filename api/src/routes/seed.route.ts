@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../config/database';
-import { supabaseStorage, STORAGE_BUCKET } from '../config/storage';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -85,28 +84,44 @@ router.post('/indralok', async (req: Request, res: Response) => {
 
         console.log('✅ Properties inserted');
 
-        // ── 3. Upload photos to Supabase Storage ───────────────────
-        // Find image files relative to the running process (deployed root)
+        // ── 3. Upload photos to Supabase Storage via REST API (no WebSocket) ──
+        const SUPABASE_URL = process.env.SUPABASE_URL!;
+        const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+        const BUCKET = process.env.SUPABASE_BUCKET_NAME || 'awaasdirect-assets';
+
+        const uploadPhoto = async (buffer: Buffer, key: string): Promise<string | null> => {
+            const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${key}`;
+            const res = await fetch(uploadUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${SERVICE_KEY}`,
+                    'Content-Type': 'image/jpeg',
+                    'x-upsert': 'true',
+                },
+                body: buffer,
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                console.error(`❌ Upload failed for ${key}:`, text);
+                return null;
+            }
+            return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${key}`;
+        };
+
         const rootDir = path.join(process.cwd(), '..');
         const room412Path = path.join(rootDir, 'room412.jpeg');
         const room312Dir = path.join(rootDir, 'room312');
 
         const uploadedPhotos: { propertyId: string; url: string; key: string; isCover: boolean }[] = [];
 
-        // Upload room 412 photo
+        // Upload room 412
         if (fs.existsSync(room412Path)) {
             const buffer = fs.readFileSync(room412Path);
             const key = `properties/indralok-room-412/room412.jpeg`;
-            const { error } = await supabaseStorage.from(BUCKET).upload(key, buffer, {
-                contentType: 'image/jpeg',
-                upsert: true,
-            });
-            if (!error) {
-                const { data: urlData } = supabaseStorage.from(BUCKET).getPublicUrl(key);
-                uploadedPhotos.push({ propertyId: 'indralok-room-412', url: urlData.publicUrl, key, isCover: true });
+            const url = await uploadPhoto(buffer, key);
+            if (url) {
+                uploadedPhotos.push({ propertyId: 'indralok-room-412', url, key, isCover: true });
                 console.log('✅ Uploaded room412.jpeg');
-            } else {
-                console.error('❌ room412 upload error:', error.message);
             }
         } else {
             console.warn('⚠️ room412.jpeg not found at', room412Path);
@@ -118,18 +133,11 @@ router.post('/indralok', async (req: Request, res: Response) => {
             for (let i = 0; i < files.length; i++) {
                 const filePath = path.join(room312Dir, files[i]);
                 const buffer = fs.readFileSync(filePath);
-                const safeFilename = `photo_${i + 1}.jpeg`;
-                const key = `properties/indralok-room-312/${safeFilename}`;
-                const { error } = await supabaseStorage.from(BUCKET).upload(key, buffer, {
-                    contentType: 'image/jpeg',
-                    upsert: true,
-                });
-                if (!error) {
-                    const { data: urlData } = supabaseStorage.from(BUCKET).getPublicUrl(key);
-                    uploadedPhotos.push({ propertyId: 'indralok-room-312', url: urlData.publicUrl, key, isCover: i === 0 });
+                const key = `properties/indralok-room-312/photo_${i + 1}.jpeg`;
+                const url = await uploadPhoto(buffer, key);
+                if (url) {
+                    uploadedPhotos.push({ propertyId: 'indralok-room-312', url, key, isCover: i === 0 });
                     console.log(`✅ Uploaded room312 photo ${i + 1}`);
-                } else {
-                    console.error(`❌ room312 photo ${i + 1} upload error:`, error.message);
                 }
             }
         } else {
