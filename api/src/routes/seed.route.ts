@@ -11,102 +11,64 @@ router.post('/indralok', async (req: Request, res: Response) => {
     }
 
     try {
-        // Find owner
-        const owner = await prisma.user.findUnique({
-            where: { email: 'vishwast656@gmail.com' }
-        });
+        // Use raw SQL to avoid schema drift issues
+        const users = await prisma.$queryRawUnsafe<any[]>(
+            `SELECT id, email FROM users WHERE email = 'vishwast656@gmail.com' LIMIT 1`
+        );
 
-        if (!owner) {
+        if (!users || users.length === 0) {
             return res.status(404).json({ success: false, message: 'Owner user not found. Please log in to the website first.' });
         }
 
-        const commonData = {
-            type: 'APARTMENT' as const,
-            transactionType: 'SALE' as const,
-            status: 'ACTIVE' as const,
-            state: 'Madhya Pradesh',
-            city: 'Rewa',
-            locality: 'Indralok Palace Apartment Complex',
-            pincode: '486001',
-            address: 'Indralok Palace Apartment Complex, Rewa, Madhya Pradesh',
-            latitude: 24.5362,
-            longitude: 81.2999,
-            bhk: 2,
-            sqft: 1100,
-            furnishing: 'FULLY_FURNISHED' as const,
-            price: 4000000,
-            priceNegotiable: true,
-            ownerId: owner.id,
-        };
+        const ownerId = users[0].id;
+        console.log('✅ Found owner:', ownerId);
 
-        const p1 = await prisma.property.upsert({
-            where: { id: 'indralok-room-312' },
-            update: {},
-            create: {
-                id: 'indralok-room-312',
-                ...commonData,
-                floors: 3,
-                title: '2BHK Fully Furnished Apartment — Flat 312, Indralok Palace, Rewa',
-                description: `Premium 2BHK fully furnished apartment on the 3rd floor of Indralok Palace Apartment Complex, Rewa.
+        const now = new Date().toISOString();
 
-✨ Key Highlights:
-• 2 Bedrooms | 2 Bathrooms
-• Fully Furnished with premium wooden work & stylish interiors
-• Elegant fall ceiling throughout
-• Private balcony
-• Dedicated garage parking
-• 24/7 lift access
-• Ready to move in
+        // Insert Room 312
+        await prisma.$queryRawUnsafe(`
+            INSERT INTO properties (id, title, description, type, "transactionType", status,
+                state, city, locality, pincode, address, latitude, longitude,
+                bhk, sqft, furnishing, price, "priceNegotiable", floors,
+                "ownerId", "viewCount", "createdAt", "updatedAt")
+            VALUES (
+                'indralok-room-312',
+                '2BHK Fully Furnished Apartment — Flat 312, Indralok Palace, Rewa',
+                E'Premium 2BHK fully furnished apartment on the 3rd floor of Indralok Palace Apartment Complex, Rewa.\n\n✨ Key Highlights:\n• 2 Bedrooms | 2 Bathrooms\n• Fully Furnished with premium wooden work & stylish interiors\n• Elegant fall ceiling throughout\n• Private balcony\n• Dedicated garage parking\n• 24/7 lift access\n• Ready to move in\n\n🏠 Building Amenities:\n• Lift / Elevator\n• Garage parking space\n• Gated society with security\n\n📍 Location: Indralok Palace Apartment Complex, Rewa, Madhya Pradesh\n🔑 Flat No: 312 (3rd Floor)\n💰 Price: ₹40 Lakhs (Negotiable)\n\n📞 For site visits & details: 6302429095',
+                'APARTMENT', 'SALE', 'ACTIVE',
+                'Madhya Pradesh', 'Rewa', 'Indralok Palace Apartment Complex',
+                '486001', 'Indralok Palace Apartment Complex, Rewa, Madhya Pradesh',
+                24.5362, 81.2999,
+                2, 1100, 'FULLY_FURNISHED', 4000000, true, 3,
+                '${ownerId}', 0, '${now}', '${now}'
+            )
+            ON CONFLICT (id) DO NOTHING
+        `);
 
-🏠 Building Amenities:
-• Lift / Elevator
-• Garage parking space
-• Gated society with security
-
-📍 Location: Indralok Palace Apartment Complex, Rewa, Madhya Pradesh
-🔑 Flat No: 312 (3rd Floor)
-💰 Price: ₹40 Lakhs (Negotiable)
-
-📞 For site visits & details: 6302429095`,
-            }
-        });
-
-        const p2 = await prisma.property.upsert({
-            where: { id: 'indralok-room-412' },
-            update: {},
-            create: {
-                id: 'indralok-room-412',
-                ...commonData,
-                floors: 4,
-                title: '2BHK Fully Furnished Apartment — Flat 412, Indralok Palace, Rewa',
-                description: `Premium 2BHK fully furnished apartment on the 4th floor of Indralok Palace Apartment Complex, Rewa.
-
-✨ Key Highlights:
-• 2 Bedrooms | 2 Bathrooms
-• Fully Furnished with premium wooden work & stylish interiors
-• Elegant fall ceiling throughout
-• Private balcony with elevated open views
-• Dedicated garage parking
-• 24/7 lift access
-• Ready to move in
-
-🏠 Building Amenities:
-• Lift / Elevator
-• Garage parking space
-• Gated society with security
-
-📍 Location: Indralok Palace Apartment Complex, Rewa, Madhya Pradesh
-🔑 Flat No: 412 (4th Floor)
-💰 Price: ₹40 Lakhs (Negotiable)
-
-📞 For site visits & details: 6302429095`,
-            }
-        });
+        // Insert Room 412
+        await prisma.$queryRawUnsafe(`
+            INSERT INTO properties (id, title, description, type, "transactionType", status,
+                state, city, locality, pincode, address, latitude, longitude,
+                bhk, sqft, furnishing, price, "priceNegotiable", floors,
+                "ownerId", "viewCount", "createdAt", "updatedAt")
+            VALUES (
+                'indralok-room-412',
+                '2BHK Fully Furnished Apartment — Flat 412, Indralok Palace, Rewa',
+                E'Premium 2BHK fully furnished apartment on the 4th floor of Indralok Palace Apartment Complex, Rewa.\n\n✨ Key Highlights:\n• 2 Bedrooms | 2 Bathrooms\n• Fully Furnished with premium wooden work & stylish interiors\n• Elegant fall ceiling throughout\n• Private balcony with elevated open views\n• Dedicated garage parking\n• 24/7 lift access\n• Ready to move in\n\n🏠 Building Amenities:\n• Lift / Elevator\n• Garage parking space\n• Gated society with security\n\n📍 Location: Indralok Palace Apartment Complex, Rewa, Madhya Pradesh\n🔑 Flat No: 412 (4th Floor)\n💰 Price: ₹40 Lakhs (Negotiable)\n\n📞 For site visits & details: 6302429095',
+                'APARTMENT', 'SALE', 'ACTIVE',
+                'Madhya Pradesh', 'Rewa', 'Indralok Palace Apartment Complex',
+                '486001', 'Indralok Palace Apartment Complex, Rewa, Madhya Pradesh',
+                24.5362, 81.2999,
+                2, 1100, 'FULLY_FURNISHED', 4000000, true, 4,
+                '${ownerId}', 0, '${now}', '${now}'
+            )
+            ON CONFLICT (id) DO NOTHING
+        `);
 
         return res.status(200).json({
             success: true,
             message: '✅ Both Indralok Palace apartments created successfully!',
-            data: { room312: p1.id, room412: p2.id }
+            data: { room312: 'indralok-room-312', room412: 'indralok-room-412' }
         });
 
     } catch (err: any) {
