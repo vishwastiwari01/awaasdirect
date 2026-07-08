@@ -89,6 +89,7 @@ router.post('/indralok', async (req: Request, res: Response) => {
         const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
         const BUCKET = process.env.SUPABASE_BUCKET_NAME || 'awaasdirect-assets';
 
+        const uploadErrors: string[] = [];
         const uploadPhoto = async (buffer: Buffer, key: string): Promise<string | null> => {
             const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${key}`;
             const res = await fetch(uploadUrl, {
@@ -102,7 +103,9 @@ router.post('/indralok', async (req: Request, res: Response) => {
             });
             if (!res.ok) {
                 const text = await res.text();
-                console.error(`❌ Upload failed for ${key}:`, text);
+                const errMessage = `❌ Upload failed for ${key}: ${res.status} ${res.statusText} - ${text}`;
+                console.error(errMessage);
+                uploadErrors.push(errMessage);
                 return null;
             }
             return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${key}`;
@@ -112,10 +115,7 @@ router.post('/indralok', async (req: Request, res: Response) => {
         const rootDir = path.join(__dirname, '..', '..', '..');
         const room412Path = path.join(rootDir, 'api', 'room412.jpeg');
         const room312Dir  = path.join(rootDir, 'api', 'room312');
-        console.log('rootDir:', rootDir);
-        console.log('room412Path:', room412Path, 'exists:', fs.existsSync(room412Path));
-        console.log('room312Dir:', room312Dir, 'exists:', fs.existsSync(room312Dir));
-
+        
         const uploadedPhotos: { propertyId: string; url: string; key: string; isCover: boolean }[] = [];
 
         // Upload room 412
@@ -125,10 +125,7 @@ router.post('/indralok', async (req: Request, res: Response) => {
             const url = await uploadPhoto(buffer, key);
             if (url) {
                 uploadedPhotos.push({ propertyId: 'indralok-room-412', url, key, isCover: true });
-                console.log('✅ Uploaded room412.jpeg');
             }
-        } else {
-            console.warn('⚠️ room412.jpeg not found at', room412Path);
         }
 
         // Upload room 312 photos
@@ -141,11 +138,8 @@ router.post('/indralok', async (req: Request, res: Response) => {
                 const url = await uploadPhoto(buffer, key);
                 if (url) {
                     uploadedPhotos.push({ propertyId: 'indralok-room-312', url, key, isCover: i === 0 });
-                    console.log(`✅ Uploaded room312 photo ${i + 1}`);
                 }
             }
-        } else {
-            console.warn('⚠️ room312 folder not found at', room312Dir);
         }
 
         // ── 4. Insert photo records into DB ────────────────────────
@@ -170,6 +164,7 @@ router.post('/indralok', async (req: Request, res: Response) => {
                 photosUploaded: uploadedPhotos.length,
                 photos: uploadedPhotos.map(p => p.url),
                 debug: {
+                    uploadErrors,
                     rootDir,
                     room412Exists: fs.existsSync(room412Path),
                     room312Exists: fs.existsSync(room312Dir),
