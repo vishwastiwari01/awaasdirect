@@ -90,10 +90,10 @@ export default function PropertyDetailPage() {
     return (
         <>
             <Navbar />
-            <main style={{ paddingTop: 64, minHeight: '100vh', background: 'var(--warm-white)' }}>
-                <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 80px' }}>
+            <main className="pt-16 min-h-screen bg-[#FDFAF6]">
+                <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-20 py-6 md:py-10">
                     {/* Back */}
-                    <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 24, fontFamily: '"DM Sans",sans-serif', fontSize: 14 }}>
+                    <button onClick={() => router.back()} className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 bg-transparent border-none cursor-pointer mb-4 md:mb-6 font-sans text-sm transition-colors">
                         <ChevronLeft size={16} /> Back to listings
                     </button>
 

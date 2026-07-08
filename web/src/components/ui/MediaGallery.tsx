@@ -28,11 +28,11 @@ export function MediaGallery({ photos, children }: MediaGalleryProps) {
     const isVideo = currentMedia.url.toLowerCase().match(/\.(mp4|webm|mov|mkv)$/);
 
     return (
-        <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', height: 400, background: '#000', marginBottom: 32 }}>
+        <div className="relative rounded-xl md:rounded-2xl overflow-hidden h-[300px] sm:h-[400px] md:h-[500px] bg-black mb-6 md:mb-8">
             {isVideo ? (
-                <video src={currentMedia.url} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <video src={currentMedia.url} controls className="w-full h-full object-contain" />
             ) : (
-                <img src={currentMedia.url} alt="Property" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={currentMedia.url} alt="Property" className="w-full h-full object-cover" />
             )}
 
             {children}
