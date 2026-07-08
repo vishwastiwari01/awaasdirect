@@ -98,7 +98,7 @@ router.post('/indralok', async (req: Request, res: Response) => {
                     'Content-Type': 'image/jpeg',
                     'x-upsert': 'true',
                 },
-                body: buffer,
+                body: new Uint8Array(buffer),
             });
             if (!res.ok) {
                 const text = await res.text();
