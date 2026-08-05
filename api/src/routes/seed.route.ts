@@ -178,4 +178,90 @@ router.post('/indralok', async (req: Request, res: Response) => {
     }
 });
 
+router.post('/house', async (req: Request, res: Response) => {
+    const secret = req.headers['x-seed-secret'];
+    if (secret !== 'awaasdirect-seed-2026') {
+        return res.status(403).json({ success: false, message: 'Forbidden' });
+    }
+
+    try {
+        const users = await prisma.$queryRawUnsafe<any[]>(`SELECT id FROM users WHERE email = 'vishwast656@gmail.com' LIMIT 1`);
+        if (!users || users.length === 0) return res.status(500).json({ success: false, message: 'Owner user not found' });
+        const ownerId = users[0].id;
+        const now = new Date().toISOString();
+        const propertyId = 'rewa-house-1';
+
+        await prisma.$queryRawUnsafe(`
+            INSERT INTO properties (id, title, description, type, "transactionType", status,
+                state, city, locality, pincode, address, 
+                price, "priceNegotiable",
+                "ownerId", "viewCount", "createdAt", "updatedAt")
+            VALUES (
+                '${propertyId}',
+                '🏡 House for Sale | Rewa, MP',
+                E'Spacious independent home with modern interiors, modular kitchen, balcony, parking & a beautiful lawn.\n\n📩 Contact us for price & more details.\n\n#Rewa #HouseForSale #RewaRealEstate #DreamHome #LuxuryHome AwaasOnline PropertyForSale MadhyaPradesh RealEstateIndia',
+                'INDEPENDENT_HOUSE', 'SALE', 'ACTIVE',
+                'Madhya Pradesh', 'Rewa', 'Rewa City',
+                '486001', 'Rewa, Madhya Pradesh',
+                0, true,
+                '${ownerId}', 0, '${now}', '${now}'
+            )
+            ON CONFLICT (id) DO UPDATE SET 
+                title = EXCLUDED.title,
+                description = EXCLUDED.description,
+                locality = EXCLUDED.locality
+        `);
+
+        // Upload photos
+        const SUPABASE_URL = process.env.SUPABASE_URL!;
+        const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+        const BUCKET = process.env.SUPABASE_BUCKET_NAME || 'awaasdirect-assets';
+
+        const rootDir = path.join(__dirname, '..', '..', '..');
+        const houseDir = path.join(rootDir, 'api', 'house-for-sale');
+        const uploadedPhotos = [];
+
+        if (fs.existsSync(houseDir)) {
+            const files = fs.readdirSync(houseDir).filter(f => /\.(jpe?g|png|webp)$/i.test(f));
+            for (let i = 0; i < files.length; i++) {
+                const filePath = path.join(houseDir, files[i]);
+                const buffer = fs.readFileSync(filePath);
+                const key = `properties/${propertyId}/photo_${i + 1}.jpeg`;
+                const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${key}`;
+                
+                const uploadRes = await fetch(uploadUrl, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SERVICE_KEY,
+                        'Authorization': `Bearer ${SERVICE_KEY}`,
+                        'Content-Type': 'image/jpeg',
+                        'x-upsert': 'true',
+                    },
+                    body: new Uint8Array(buffer),
+                });
+
+                if (uploadRes.ok) {
+                    const url = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${key}`;
+                    uploadedPhotos.push({ propertyId, url, key, isCover: i === 0 });
+                }
+            }
+        }
+
+        for (let i = 0; i < uploadedPhotos.length; i++) {
+            const p = uploadedPhotos[i];
+            const photoId = crypto.randomBytes(8).toString('hex');
+            await prisma.$queryRawUnsafe(`
+                INSERT INTO property_photos (id, url, "s3Key", "isCover", "sortOrder", "propertyId", "createdAt", "updatedAt")
+                VALUES ('${photoId}', '${p.url}', '${p.key}', ${p.isCover}, ${i}, '${p.propertyId}', NOW(), NOW())
+                ON CONFLICT ("s3Key") DO NOTHING
+            `);
+        }
+
+        return res.status(200).json({ success: true, message: `House seeded with ${uploadedPhotos.length} photos!` });
+    } catch (err: any) {
+        console.error('Seed error:', err);
+        return res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 export default router;
