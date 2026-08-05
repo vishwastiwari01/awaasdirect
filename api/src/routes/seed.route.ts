@@ -204,14 +204,15 @@ router.post('/house', async (req: Request, res: Response) => {
                 'INDEPENDENT_HOUSE', 'SALE', 'ACTIVE',
                 'Madhya Pradesh', 'Rewa', 'Rewa City',
                 '486001', 'Rewa, Madhya Pradesh',
-                24.5362, 81.2999, 3, 1500, 'SEMI_FURNISHED', 2,
+                24.5362, 81.2999, 3, 3000, 'SEMI_FURNISHED', 2,
                 0, true,
                 '${ownerId}', 0, '${now}', '${now}'
             )
             ON CONFLICT (id) DO UPDATE SET 
                 title = EXCLUDED.title,
                 description = EXCLUDED.description,
-                locality = EXCLUDED.locality
+                locality = EXCLUDED.locality,
+                sqft = EXCLUDED.sqft
         `);
 
         // Upload photos
