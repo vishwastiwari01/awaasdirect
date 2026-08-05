@@ -127,7 +127,15 @@ router.post('/indralok', async (req: Request, res: Response) => {
 
         // Upload room 312 photos
         if (fs.existsSync(room312Dir)) {
-            const files = fs.readdirSync(room312Dir).filter(f => /\.(jpe?g|png|webp)$/i.test(f));
+            let files = fs.readdirSync(room312Dir).filter(f => /\.(jpe?g|png|webp)$/i.test(f));
+            
+            // Force the living room image to be first so it becomes the cover photo
+            files.sort((a, b) => {
+                if (a.includes('(1)')) return -1;
+                if (b.includes('(1)')) return 1;
+                return a.localeCompare(b);
+            });
+
             for (let i = 0; i < files.length; i++) {
                 const filePath = path.join(room312Dir, files[i]);
                 const buffer = fs.readFileSync(filePath);
@@ -146,7 +154,10 @@ router.post('/indralok', async (req: Request, res: Response) => {
             await prisma.$queryRawUnsafe(`
                 INSERT INTO property_photos (id, url, "s3Key", "isCover", "sortOrder", "propertyId", "createdAt", "updatedAt")
                 VALUES ('${photoId}', '${p.url}', '${p.key}', ${p.isCover}, ${i}, '${p.propertyId}', NOW(), NOW())
-                ON CONFLICT ("s3Key") DO NOTHING
+                ON CONFLICT ("s3Key") DO UPDATE SET
+                    "isCover" = EXCLUDED."isCover",
+                    "sortOrder" = EXCLUDED."sortOrder",
+                    "updatedAt" = NOW()
             `);
         }
 
