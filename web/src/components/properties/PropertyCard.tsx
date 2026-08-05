@@ -18,6 +18,7 @@ const UNSPLASH_IMAGES = [
 ];
 
 function formatPrice(price: number, listingType: string) {
+    if (price === 0) return 'Price Negotiable';
     if (listingType === 'RENT') return `₹${(price / 1000).toFixed(0)}k/mo`;
     if (price >= 10_000_000) return `₹${(price / 10_000_000).toFixed(2)} Cr`;
     if (price >= 100_000) return `₹${(price / 100_000).toFixed(0)}L`;

@@ -6,6 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(amount: number): string {
+    if (amount === 0) return 'Price Negotiable';
     if (amount >= 10_000_000) return `₹${(amount / 10_000_000).toFixed(2)} Cr`;
     if (amount >= 100_000) return `₹${(amount / 100_000).toFixed(1)} L`;
     return `₹${amount.toLocaleString('en-IN')}`;
