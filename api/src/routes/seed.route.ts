@@ -194,6 +194,7 @@ router.post('/house', async (req: Request, res: Response) => {
         await prisma.$queryRawUnsafe(`
             INSERT INTO properties (id, title, description, type, "transactionType", status,
                 state, city, locality, pincode, address, 
+                latitude, longitude, bhk, sqft, furnishing, floors,
                 price, "priceNegotiable",
                 "ownerId", "viewCount", "createdAt", "updatedAt")
             VALUES (
@@ -203,6 +204,7 @@ router.post('/house', async (req: Request, res: Response) => {
                 'INDEPENDENT_HOUSE', 'SALE', 'ACTIVE',
                 'Madhya Pradesh', 'Rewa', 'Rewa City',
                 '486001', 'Rewa, Madhya Pradesh',
+                24.5362, 81.2999, 3, 1500, 'SEMI_FURNISHED', 2,
                 0, true,
                 '${ownerId}', 0, '${now}', '${now}'
             )
