@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import type { Metadata } from 'next';
 import { Playfair_Display, Inter } from 'next/font/google';
 import { QueryProvider } from '@/lib/query-provider';
@@ -28,6 +29,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+            <head>
+                <Script 
+                    async 
+                    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6267634592194802" 
+                    crossOrigin="anonymous" 
+                    strategy="lazyOnload"
+                />
+            </head>
             <body className="font-sans">
                 <QueryProvider>{children}</QueryProvider>
             </body>
